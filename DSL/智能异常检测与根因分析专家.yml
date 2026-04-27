@@ -1,0 +1,264 @@
+app:
+  description: ''
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  mode: agent-chat
+  name: 智能异常检测与根因分析专家
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: antv/visualization:0.2.0@798a255e7bf02e93b8a5717be235b833482be58daab1c64c79c954281da14b9c
+    version: null
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/siliconflow:0.0.43@18a2f3c3559d752b178bb4efd6b736dec8dd13c2d963fd6aa5b0a350e24e6826
+    version: null
+kind: app
+model_config:
+  agent_mode:
+    enabled: true
+    max_iteration: 10
+    prompt: null
+    strategy: function_call
+    tools:
+    - enabled: true
+      isDeleted: false
+      notAuthor: false
+      provider_id: antv/visualization/visualization
+      provider_name: antv/visualization/visualization
+      provider_type: builtin
+      tool_label: 生成条形图
+      tool_name: generate_bar_chart
+      tool_parameters:
+        axisXTitle: null
+        axisYTitle: null
+        data: null
+        group: false
+        height: 400
+        stack: false
+        style: null
+        theme: default
+        title: null
+        width: 600
+    - enabled: true
+      isDeleted: false
+      notAuthor: false
+      provider_id: antv/visualization/visualization
+      provider_name: antv/visualization/visualization
+      provider_type: builtin
+      tool_label: 生成柱状图
+      tool_name: generate_column_chart
+      tool_parameters:
+        axisXTitle: null
+        axisYTitle: null
+        data: null
+        group: false
+        height: 400
+        stack: false
+        style: null
+        theme: default
+        title: null
+        width: 600
+    - enabled: true
+      isDeleted: false
+      notAuthor: false
+      provider_id: antv/visualization/visualization
+      provider_name: antv/visualization/visualization
+      provider_type: builtin
+      tool_label: 生成流程图
+      tool_name: generate_flow_diagram
+      tool_parameters:
+        data: null
+        height: 400
+        style: null
+        theme: default
+        title: null
+        width: 600
+    - enabled: true
+      isDeleted: false
+      notAuthor: false
+      provider_id: antv/visualization/visualization
+      provider_name: antv/visualization/visualization
+      provider_type: builtin
+      tool_label: 生成直方图
+      tool_name: generate_histogram_chart
+      tool_parameters:
+        binNumber: 10
+        data: null
+        height: 400
+        style: null
+        theme: default
+        title: null
+        width: 600
+    - enabled: true
+      isDeleted: false
+      notAuthor: false
+      provider_id: antv/visualization/visualization
+      provider_name: antv/visualization/visualization
+      provider_type: builtin
+      tool_label: 生成折线图
+      tool_name: generate_line_chart
+      tool_parameters:
+        axisXTitle: null
+        axisYTitle: null
+        data: null
+        height: 400
+        style: null
+        theme: default
+        title: null
+        width: 600
+    - enabled: true
+      isDeleted: false
+      notAuthor: false
+      provider_id: antv/visualization/visualization
+      provider_name: antv/visualization/visualization
+      provider_type: builtin
+      tool_label: 生成思维导图
+      tool_name: generate_mind_map
+      tool_parameters:
+        data: null
+        height: 400
+        style: null
+        theme: default
+        title: null
+        width: 600
+    - enabled: true
+      isDeleted: false
+      notAuthor: false
+      provider_id: e94fb5cf-5c4a-44eb-9616-50368ff1d972
+      provider_name: markdown转换为docx或者pdf或者csv
+      provider_type: workflow
+      tool_label: markdown转换为docx或者pdf或者csv
+      tool_name: markdown_convert_docxORpdfORcsv
+      tool_parameters:
+        md: ''
+        md_to_type: md_to_docx
+  annotation_reply:
+    enabled: false
+  chat_prompt_config:
+    prompt:
+    - role: system
+      text: ''
+  completion_prompt_config:
+    conversation_histories_role:
+      assistant_prefix: ''
+      user_prefix: ''
+    prompt:
+      text: ''
+  dataset_configs:
+    datasets:
+      datasets:
+      - dataset:
+          enabled: true
+          id: 216e764b-b879-48b7-be10-ddc0b192394b
+      - dataset:
+          enabled: true
+          id: 5c958ba5-f4dc-4e54-95dc-70d74a95e346
+      - dataset:
+          enabled: true
+          id: fad0ade2-4e7f-4f53-a4a8-63f909a479c1
+      - dataset:
+          enabled: true
+          id: 752f4309-a700-4075-b58c-2fb7784a55ee
+      - dataset:
+          enabled: true
+          id: ffa5f2b9-5326-43fd-999b-5e5ef715c9d0
+      - dataset:
+          enabled: true
+          id: 7ed7ba8a-f616-48fb-bef1-f93f9743b99f
+      - dataset:
+          enabled: true
+          id: 3d116e25-490a-477d-a309-1e051f5c9672
+      - dataset:
+          enabled: true
+          id: 9e379865-cec3-40b9-b311-8c8891a438c9
+      - dataset:
+          enabled: true
+          id: 6b75a508-4311-4f24-8d0c-8595b5026a73
+      - dataset:
+          enabled: true
+          id: efe27ab7-f57a-42ce-a8cf-26bc8856cb5d
+      - dataset:
+          enabled: true
+          id: 143db072-ec99-4014-b6a1-e6ba4eb5a847
+      - dataset:
+          enabled: true
+          id: a5b2a6ac-45c7-495e-b227-c0e91d22fcec
+      - dataset:
+          enabled: true
+          id: 7354fc85-67b2-49fd-bd9d-5a2848b6a077
+    reranking_enable: true
+    reranking_mode: reranking_model
+    reranking_model:
+      reranking_model_name: netease-youdao/bce-reranker-base_v1
+      reranking_provider_name: langgenius/siliconflow/siliconflow
+    retrieval_model: multiple
+    top_k: 4
+  dataset_query_variable: ''
+  external_data_tools: []
+  file_upload:
+    allowed_file_extensions:
+    - .JPG
+    - .JPEG
+    - .PNG
+    - .GIF
+    - .WEBP
+    - .SVG
+    - .MP4
+    - .MOV
+    - .MPEG
+    - .WEBM
+    allowed_file_types: []
+    allowed_file_upload_methods:
+    - remote_url
+    - local_file
+    enabled: false
+    image:
+      detail: high
+      enabled: false
+      number_limits: 3
+      transfer_methods:
+      - remote_url
+      - local_file
+    number_limits: 3
+  model:
+    completion_params:
+      enable_thinking: false
+      stop: []
+    mode: chat
+    name: Pro/zai-org/GLM-4.7
+    provider: langgenius/siliconflow/siliconflow
+  more_like_this:
+    enabled: false
+  opening_statement: ''
+  pre_prompt: "# Role: 深度洞察分析师\n\n## Profile\n- language: 中文\n- description: 深度洞察分析师是一位能够主动发现异常、持续追踪问题至根本原因，自动化进行多维归因和深入分析，并输出专业结论及可执行行动建议的数据分析与洞察专家。\n\
+    - background: 深度洞察分析师具备强大的数据挖掘、统计分析和业务洞察能力，熟练运用各类自动化分析工具，驱动企业进行数据驱动决策，提升运营效率及风险管控水平。\n\
+    - personality: 细致严谨、主动积极、逻辑清晰、结果导向\n- expertise: 异常检测、根因分析、多维归因分析、自动化数据探查、业务洞察、数据驱动决策建议\n\
+    - target_audience: 企业管理层、数据分析师、产品经理、风控团队、业务运营团队\n\n## Skills\n\n1. 核心技能类别：异常检测与根因分析\n\
+    \   - 自动化异常发现: 利用算法与规则及时识别数据异常现象\n   - 深度根因追踪: 多维度持续跟踪发散，拆解并锁定根本原因\n   - 多维归因分析:\
+    \ 结合多源数据和维度，完成多角度归因定位\n   - 高效报告输出: 自动生成结构化洞察结论与行动建议报告\n\n2. 辅助技能类别：数据处理与沟通表达\n\
+    \   - 数据预处理: 对数据进行清洗、标准化与特征工程处理\n   - 业务场景解读: 能将复杂数据现象转化为业务逻辑和实际影响\n   - 可视化展示:\
+    \ 用直观图表和简洁表达提升分析洞察的理解度\n   - 协同沟通: 与多方团队有效沟通分析发现及后续建议\n\n## Rules\n\n1. 基本原则：\n\
+    \   - 客观系统: 基于数据和事实，全流程保持分析的客观性和系统性\n   - 主动预警: 优先实现异常自动发现和快速反应机制\n   - 可解释性:\
+    \ 所有结论和建议须"
+  prompt_type: simple
+  retriever_resource:
+    enabled: true
+  sensitive_word_avoidance:
+    configs: []
+    enabled: false
+    type: ''
+  speech_to_text:
+    enabled: false
+  suggested_questions: []
+  suggested_questions_after_answer:
+    enabled: false
+  text_to_speech:
+    enabled: false
+    language: ''
+    voice: ''
+  user_input_form: []
+version: 0.5.0

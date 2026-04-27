@@ -1,0 +1,930 @@
+app:
+  description: ''
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  mode: workflow
+  name: md转文件
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: bowenliang123/md_exporter:3.6.9@3f027d63e80b44d5d5a9f706871afaef37905b8f8a89a2d152dc530211a8acb1
+    version: null
+kind: app
+version: 0.5.0
+workflow:
+  conversation_variables: []
+  environment_variables:
+  - description: 转换或文件下载地址
+    id: 87b942fe-f5bc-4740-829f-bda5e01e9abf
+    name: down_url
+    selector:
+    - env
+    - down_url
+    value: http://123.207.72.88:8088/
+    value_type: string
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        image_file_batch_limit: 10
+        image_file_size_limit: 10
+        single_chunk_attachment_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInLoop: false
+        sourceType: tool
+        targetType: code
+      id: 1776583642274-source-1777017028463-target
+      source: '1776583642274'
+      sourceHandle: source
+      target: '1777017028463'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: if-else
+      id: 1776583340876-source-1777018333151-target
+      source: '1776583340876'
+      sourceHandle: source
+      target: '1777018333151'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: tool
+      id: 1777018333151-true-1776583642274-target
+      source: '1777018333151'
+      sourceHandle: 'true'
+      target: '1776583642274'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: tool
+      id: 1777018333151-9a552179-6e9b-49ab-9da2-171817d8dcdd-1777018419935-target
+      source: '1777018333151'
+      sourceHandle: 9a552179-6e9b-49ab-9da2-171817d8dcdd
+      target: '1777018419935'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: tool
+      id: 1777018333151-c9f4730d-101a-4dbc-89ce-39098afbc323-1777018433113-target
+      source: '1777018333151'
+      sourceHandle: c9f4730d-101a-4dbc-89ce-39098afbc323
+      target: '1777018433113'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: tool
+        targetType: code
+      id: 1777018419935-source-17770184530780-target
+      source: '1777018419935'
+      sourceHandle: source
+      target: '17770184530780'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: tool
+        targetType: code
+      id: 1777018433113-source-17770184563770-target
+      source: '1777018433113'
+      sourceHandle: source
+      target: '17770184563770'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: code
+      id: 1777017028463-source-1777018676396-target
+      source: '1777017028463'
+      sourceHandle: source
+      target: '1777018676396'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: code
+        targetType: code
+      id: 17770184530780-source-1777018676396-target
+      source: '17770184530780'
+      sourceHandle: source
+      target: '1777018676396'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: code
+        targetType: code
+      id: 17770184563770-source-1777018676396-target
+      source: '17770184563770'
+      sourceHandle: source
+      target: '1777018676396'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: code
+        targetType: end
+      id: 1777018676396-source-1776583411077-target
+      source: '1777018676396'
+      sourceHandle: source
+      target: '1776583411077'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: tool
+      id: 1777018333151-cd21df9b-2bb2-4d25-ace9-a097641f9d27-1777271430464-target
+      source: '1777018333151'
+      sourceHandle: cd21df9b-2bb2-4d25-ace9-a097641f9d27
+      target: '1777271430464'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: tool
+        targetType: code
+      id: 1777271430464-source-17772714504290-target
+      source: '1777271430464'
+      sourceHandle: source
+      target: '17772714504290'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: code
+        targetType: code
+      id: 17772714504290-source-1777018676396-target
+      source: '17772714504290'
+      sourceHandle: source
+      target: '1777018676396'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: md转文件类型，markdown转docx,转pdf,转csv，返回转换后文件下载地址
+        selected: false
+        title: md转文件输入，返回下载地址
+        type: start
+        variables:
+        - default: ''
+          hint: ''
+          label: md
+          max_length: 2000000
+          options: []
+          placeholder: ''
+          required: true
+          type: paragraph
+          variable: md
+        - default: md_to_docx
+          hint: ''
+          label: md_to_type
+          max_length: 48
+          options:
+          - md_to_docx
+          - md_to_pdf
+          - md_to_csv
+          - md_to_html
+          placeholder: ''
+          required: true
+          type: select
+          variable: md_to_type
+      height: 177
+      id: '1776583340876'
+      position:
+        x: -45.00000000000027
+        y: 185.00000000000017
+      positionAbsolute:
+        x: -45.00000000000027
+        y: 185.00000000000017
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        desc: md转换后的文件下载地址irl
+        outputs:
+        - value_selector:
+          - '1777018676396'
+          - result
+          value_type: string
+          variable: url
+        selected: false
+        title: 输出
+        type: end
+      height: 115
+      id: '1776583411077'
+      position:
+        x: 2164.281783685454
+        y: 255.51214792562251
+      positionAbsolute:
+        x: 2164.281783685454
+        y: 255.51214792562251
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        is_team_authorization: true
+        paramSchemas:
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: Markdown text
+            ja_JP: Markdown text
+            pt_BR: Markdown text
+            zh_Hans: Markdown格式文本
+          label:
+            en_US: Markdown text
+            ja_JP: Markdown text
+            pt_BR: Markdown text
+            zh_Hans: Markdown格式文本
+          llm_description: ''
+          max: null
+          min: null
+          name: md_text
+          options: []
+          placeholder: null
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: Optional docx template file for styling。Use "Home"-"Styles Pane"
+              in Microsoft Word to edit styles of the docx file.
+            ja_JP: Optional docx template file for styling。Use "Home"-"Styles Pane"
+              in Microsoft Word to edit styles of the docx file.
+            pt_BR: Optional docx template file for styling。Use "Home"-"Styles Pane"
+              in Microsoft Word to edit styles of the docx file.
+            zh_Hans: 可选的docx模板文件，用于样式控制。使用Microsoft Word中“开始”-“样式窗格”对docx文件的样式进行编辑。
+          label:
+            en_US: DOCX Template File
+            ja_JP: DOCX Template File
+            pt_BR: DOCX Template File
+            zh_Hans: DOCX 模板文件
+          llm_description: An optional .pptx file that serves as a template for the
+            generated presentation
+          max: null
+          min: null
+          name: docx_template_file
+          options: []
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: file
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: Optional custom output file name, and the filename suffix is not
+              required.
+            ja_JP: Optional custom output file name, and the filename suffix is not
+              required.
+            pt_BR: Optional custom output file name, and the filename suffix is not
+              required.
+            zh_Hans: 可选的自定义输出文件名，后缀名无需指定
+          label:
+            en_US: Output Filename
+            ja_JP: Output Filename
+            pt_BR: Output Filename
+            zh_Hans: 输出文件名
+          llm_description: ''
+          max: null
+          min: null
+          name: output_filename
+          options: []
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: string
+        params:
+          docx_template_file: ''
+          md_text: ''
+          output_filename: ''
+        plugin_id: bowenliang123/md_exporter
+        plugin_unique_identifier: bowenliang123/md_exporter:3.6.9@3f027d63e80b44d5d5a9f706871afaef37905b8f8a89a2d152dc530211a8acb1
+        provider_icon: /console/api/workspaces/current/plugin/icon?tenant_id=3c48106f-c4f7-4349-8ef9-c393a027ab95&filename=94713265c9473c3bd2bc8b0dd0794ad40955b7431610243bbd00ab02dae281cf.png
+        provider_id: bowenliang123/md_exporter/md_exporter
+        provider_name: bowenliang123/md_exporter/md_exporter
+        provider_type: builtin
+        selected: false
+        title: Markdown ⮕ DOCX
+        tool_configurations: {}
+        tool_description: 将 Markdown 转换为 DOCX 文件的工具
+        tool_label: Markdown ⮕ DOCX
+        tool_name: md_to_docx
+        tool_node_version: '2'
+        tool_parameters:
+          docx_template_file:
+            type: constant
+            value: null
+          md_text:
+            type: mixed
+            value: '{{#1776583340876.md#}}'
+          output_filename:
+            type: mixed
+            value: null
+        type: tool
+      height: 50
+      id: '1776583642274'
+      position:
+        x: 849.3920485084578
+        y: 171.97345901043687
+      positionAbsolute:
+        x: 849.3920485084578
+        y: 171.97345901043687
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        code: "def main(file: dict):\n    result_url = \"\"\n    \n    result_url\
+          \ = file[0][\"url\"]\n    return {\n        \"docx_result\": result_url\n\
+          \    }"
+        code_language: python3
+        outputs:
+          docx_result:
+            children: null
+            type: string
+        selected: false
+        title: 提取下载url
+        type: code
+        variables:
+        - value_selector:
+          - '1776583642274'
+          - files
+          value_type: array[file]
+          variable: file
+      height: 50
+      id: '1777017028463'
+      position:
+        x: 1306.7557928785286
+        y: 182.13197115039517
+      positionAbsolute:
+        x: 1306.7557928785286
+        y: 182.13197115039517
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: is
+            id: f0137a0a-614e-45dd-b57a-fd14fb5eb636
+            value: md_to_docx
+            varType: string
+            variable_selector:
+            - '1776583340876'
+            - md_to_type
+          id: 'true'
+          logical_operator: and
+        - case_id: 9a552179-6e9b-49ab-9da2-171817d8dcdd
+          conditions:
+          - comparison_operator: is
+            id: 8ac6d0ba-f97e-444e-9f1c-948a6a46c32d
+            value: md_to_pdf
+            varType: string
+            variable_selector:
+            - '1776583340876'
+            - md_to_type
+          id: 9a552179-6e9b-49ab-9da2-171817d8dcdd
+          logical_operator: and
+        - case_id: c9f4730d-101a-4dbc-89ce-39098afbc323
+          conditions:
+          - comparison_operator: contains
+            id: d1a84dbb-0637-4656-bb25-60f672aac6f8
+            value: md_to_csv
+            varType: string
+            variable_selector:
+            - '1776583340876'
+            - md_to_type
+          id: c9f4730d-101a-4dbc-89ce-39098afbc323
+          logical_operator: and
+        - case_id: cd21df9b-2bb2-4d25-ace9-a097641f9d27
+          conditions:
+          - comparison_operator: is
+            id: a0e25063-3ce1-45ad-8fe5-7727f4718335
+            value: md_to_html
+            varType: string
+            variable_selector:
+            - '1776583340876'
+            - md_to_type
+          id: cd21df9b-2bb2-4d25-ace9-a097641f9d27
+          logical_operator: and
+        selected: false
+        title: 条件分支
+        type: if-else
+      height: 266
+      id: '1777018333151'
+      position:
+        x: 420.7944705216604
+        y: 166.4037981704183
+      positionAbsolute:
+        x: 420.7944705216604
+        y: 166.4037981704183
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        is_team_authorization: true
+        paramSchemas:
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: Markdown text
+            ja_JP: Markdown text
+            pt_BR: Markdown text
+            zh_Hans: Markdown格式文本
+          label:
+            en_US: Markdown text
+            ja_JP: Markdown text
+            pt_BR: Markdown text
+            zh_Hans: Markdown格式文本
+          llm_description: ''
+          max: null
+          min: null
+          name: md_text
+          options: []
+          placeholder: null
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: Optional custom output file name, and the filename suffix is not
+              required.
+            ja_JP: Optional custom output file name, and the filename suffix is not
+              required.
+            pt_BR: Optional custom output file name, and the filename suffix is not
+              required.
+            zh_Hans: 可选的自定义输出文件名，后缀名无需指定
+          label:
+            en_US: Output Filename
+            ja_JP: Output Filename
+            pt_BR: Output Filename
+            zh_Hans: 输出文件名
+          llm_description: ''
+          max: null
+          min: null
+          name: output_filename
+          options: []
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: string
+        params:
+          md_text: ''
+          output_filename: ''
+        plugin_id: bowenliang123/md_exporter
+        plugin_unique_identifier: bowenliang123/md_exporter:3.6.9@3f027d63e80b44d5d5a9f706871afaef37905b8f8a89a2d152dc530211a8acb1
+        provider_icon: /console/api/workspaces/current/plugin/icon?tenant_id=3c48106f-c4f7-4349-8ef9-c393a027ab95&filename=94713265c9473c3bd2bc8b0dd0794ad40955b7431610243bbd00ab02dae281cf.png
+        provider_id: bowenliang123/md_exporter/md_exporter
+        provider_name: bowenliang123/md_exporter/md_exporter
+        provider_type: builtin
+        selected: false
+        title: Markdown ⮕ PDF
+        tool_configurations: {}
+        tool_description: 将 Markdown 转换为 PDF 文件的工具
+        tool_label: Markdown ⮕ PDF
+        tool_name: md_to_pdf
+        tool_node_version: '2'
+        tool_parameters:
+          md_text:
+            type: mixed
+            value: '{{#1776583340876.md#}}'
+          output_filename:
+            type: mixed
+            value: ''
+        type: tool
+      height: 50
+      id: '1777018419935'
+      position:
+        x: 849.3920485084578
+        y: 260.97345901043684
+      positionAbsolute:
+        x: 849.3920485084578
+        y: 260.97345901043684
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        is_team_authorization: true
+        paramSchemas:
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: Input text of single Markdown table
+            ja_JP: Input text of single Markdown table
+            pt_BR: Input text of single Markdown table
+            zh_Hans: 单个Markdown格式文本
+          label:
+            en_US: Markdown table text
+            ja_JP: Markdown table text
+            pt_BR: Markdown table text
+            zh_Hans: Markdown 表格文本
+          llm_description: ''
+          max: null
+          min: null
+          name: md_text
+          options: []
+          placeholder: null
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: Optional custom output file name, and the filename suffix is not
+              required.
+            ja_JP: Optional custom output file name, and the filename suffix is not
+              required.
+            pt_BR: Optional custom output file name, and the filename suffix is not
+              required.
+            zh_Hans: 可选的自定义输出文件名，后缀名无需指定
+          label:
+            en_US: Output Filename
+            ja_JP: Output Filename
+            pt_BR: Output Filename
+            zh_Hans: 输出文件名
+          llm_description: ''
+          max: null
+          min: null
+          name: output_filename
+          options: []
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: string
+        params:
+          md_text: ''
+          output_filename: ''
+        plugin_id: bowenliang123/md_exporter
+        plugin_unique_identifier: bowenliang123/md_exporter:3.6.9@3f027d63e80b44d5d5a9f706871afaef37905b8f8a89a2d152dc530211a8acb1
+        provider_icon: /console/api/workspaces/current/plugin/icon?tenant_id=3c48106f-c4f7-4349-8ef9-c393a027ab95&filename=94713265c9473c3bd2bc8b0dd0794ad40955b7431610243bbd00ab02dae281cf.png
+        provider_id: bowenliang123/md_exporter/md_exporter
+        provider_name: bowenliang123/md_exporter/md_exporter
+        provider_type: builtin
+        selected: false
+        title: Markdown 表格 ⮕ CSV
+        tool_configurations: {}
+        tool_description: 将 Markdown 表格转换为 CSV 文件的工具
+        tool_label: Markdown 表格 ⮕ CSV
+        tool_name: md_to_csv
+        tool_node_version: '2'
+        tool_parameters:
+          md_text:
+            type: mixed
+            value: '{{#1776583340876.md#}}'
+          output_filename:
+            type: mixed
+            value: null
+        type: tool
+      height: 50
+      id: '1777018433113'
+      position:
+        x: 849.3920485084578
+        y: 349.97345901043684
+      positionAbsolute:
+        x: 849.3920485084578
+        y: 349.97345901043684
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        code: "def main(file: dict):\n    result_url = \"\"\n    \n    result_url\
+          \ = file[0][\"url\"]\n    return {\n        \"pdf_result\": result_url\n\
+          \    }"
+        code_language: python3
+        outputs:
+          pdf_result:
+            children: null
+            type: string
+        selected: false
+        title: 提取下载url
+        type: code
+        variables:
+        - value_selector:
+          - '1777018419935'
+          - files
+          value_type: array[file]
+          variable: file
+      height: 50
+      id: '17770184530780'
+      position:
+        x: 1301.8853610483832
+        y: 270.8186926311398
+      positionAbsolute:
+        x: 1301.8853610483832
+        y: 270.8186926311398
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        code: "def main(file: dict):\n    result_url = \"\"\n    \n    result_url\
+          \ = file[0][\"url\"]\n    return {\n        \"csv_result\": result_url\n\
+          \    }"
+        code_language: python3
+        outputs:
+          csv_result:
+            children: null
+            type: string
+        selected: false
+        title: '提取下载url '
+        type: code
+        variables:
+        - value_selector:
+          - '1777018433113'
+          - files
+          value_type: array[file]
+          variable: file
+      height: 50
+      id: '17770184563770'
+      position:
+        x: 1319.2861438715202
+        y: 374.38914408933306
+      positionAbsolute:
+        x: 1319.2861438715202
+        y: 374.38914408933306
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        code: "\ndef main(docx_result: str, csv_result: str, pdf_result: str):\n \
+          \   url = \"\"\n    \n    # 依次检查变量是否非空且以 http 开头\n    # 注意：如果多个变量都有值，后面的会覆盖前面的\n\
+          \    # 如果你希望优先取 docx，请使用 if/elif 结构\n    \n    if docx_result is not None\
+          \ and str(docx_result).startswith(\"http\"):\n        url = docx_result\n\
+          \        \n    if csv_result is not None and str(csv_result).startswith(\"\
+          http\"):\n        url = csv_result\n        \n    if pdf_result is not None\
+          \ and str(pdf_result).startswith(\"http\"):\n        url = pdf_result\n\n\
+          \    return {\n        \"result\": url,\n    }"
+        code_language: python3
+        outputs:
+          result:
+            children: null
+            type: string
+        selected: false
+        title: 文件下载地址提取
+        type: code
+        variables:
+        - value_selector:
+          - '1777017028463'
+          - docx_result
+          value_type: string
+          variable: docx_result
+        - value_selector:
+          - '17770184563770'
+          - csv_result
+          value_type: string
+          variable: csv_result
+        - value_selector:
+          - '17770184530780'
+          - pdf_result
+          value_type: string
+          variable: pdf_result
+      height: 50
+      id: '1777018676396'
+      position:
+        x: 1816.9668241884578
+        y: 260.97345901043684
+      positionAbsolute:
+        x: 1816.9668241884578
+        y: 260.97345901043684
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        is_team_authorization: true
+        paramSchemas:
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: Markdown text
+            ja_JP: Markdown text
+            pt_BR: Markdown text
+            zh_Hans: Markdown格式文本
+          label:
+            en_US: Markdown text
+            ja_JP: Markdown text
+            pt_BR: Markdown text
+            zh_Hans: Markdown格式文本
+          llm_description: ''
+          max: null
+          min: null
+          name: md_text
+          options: []
+          placeholder: null
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: Optional custom output file name, and the filename suffix is not
+              required.
+            ja_JP: Optional custom output file name, and the filename suffix is not
+              required.
+            pt_BR: Optional custom output file name, and the filename suffix is not
+              required.
+            zh_Hans: 可选的自定义输出文件名，后缀名无需指定
+          label:
+            en_US: Output Filename
+            ja_JP: Output Filename
+            pt_BR: Output Filename
+            zh_Hans: 输出文件名
+          llm_description: ''
+          max: null
+          min: null
+          name: output_filename
+          options: []
+          placeholder: null
+          precision: null
+          required: false
+          scope: null
+          template: null
+          type: string
+        params:
+          md_text: ''
+          output_filename: ''
+        plugin_id: bowenliang123/md_exporter
+        plugin_unique_identifier: bowenliang123/md_exporter:3.6.9@3f027d63e80b44d5d5a9f706871afaef37905b8f8a89a2d152dc530211a8acb1
+        provider_icon: /console/api/workspaces/current/plugin/icon?tenant_id=3c48106f-c4f7-4349-8ef9-c393a027ab95&filename=94713265c9473c3bd2bc8b0dd0794ad40955b7431610243bbd00ab02dae281cf.png
+        provider_id: bowenliang123/md_exporter/md_exporter
+        provider_name: bowenliang123/md_exporter/md_exporter
+        provider_type: builtin
+        selected: false
+        title: Markdown ⮕ HTML
+        tool_configurations: {}
+        tool_description: 将 Markdown 转换为 HTML 文件的工具
+        tool_label: Markdown ⮕ HTML
+        tool_name: md_to_html
+        tool_node_version: '2'
+        tool_parameters:
+          md_text:
+            type: mixed
+            value: '{{#1776583340876.md#}}'
+          output_filename:
+            type: mixed
+            value: null
+        type: tool
+      height: 50
+      id: '1777271430464'
+      position:
+        x: 849.3920485084578
+        y: 438.97345901043684
+      positionAbsolute:
+        x: 849.3920485084578
+        y: 438.97345901043684
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    - data:
+        code: "def main(file: dict):\n    result_url = \"\"\n    \n    result_url\
+          \ = file[0][\"url\"]\n    return {\n        \"csv_result\": result_url\n\
+          \    }"
+        code_language: python3
+        outputs:
+          csv_result:
+            children: null
+            type: string
+        selected: false
+        title: '提取下载url '
+        type: code
+        variables:
+        - value_selector:
+          - '1777271430464'
+          - files
+          value_type: array[file]
+          variable: file
+      height: 50
+      id: '17772714504290'
+      position:
+        x: 1363.977629394409
+        y: 470.7983902220755
+      positionAbsolute:
+        x: 1363.977629394409
+        y: 470.7983902220755
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 241
+    viewport:
+      x: -178.4626838062643
+      y: -21.37636260129011
+      zoom: 0.8950250709279762
+  rag_pipeline_variables: []

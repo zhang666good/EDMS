@@ -1,0 +1,343 @@
+app:
+  description: '```xml
+
+    <instruction>
+
+    你是企业问数助手，请按照以下步骤完成任务：
+
+    1. 阅读用户提出的问题 {{user_question}}。
+
+    2. 从企业知识库中查找与该问题最相关的内容，
+
+    3. 综合分析知识库中检索到的信息，给出清晰、准确、简明的答案。
+
+    4. 在回答时，确保语言专业、逻辑清晰，内容符合企业规范。
+
+    5. 不要包含任何xml标签在输出内容中，仅输出最终的分析和回答结果。
+
+    </...'
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  mode: agent-chat
+  name: 年报数据处理agent
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: antv/visualization:0.2.0@798a255e7bf02e93b8a5717be235b833482be58daab1c64c79c954281da14b9c
+    version: null
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/siliconflow:0.0.43@18a2f3c3559d752b178bb4efd6b736dec8dd13c2d963fd6aa5b0a350e24e6826
+    version: null
+kind: app
+model_config:
+  agent_mode:
+    enabled: true
+    max_iteration: 10
+    prompt: null
+    strategy: function_call
+    tools:
+    - enabled: true
+      isDeleted: false
+      notAuthor: false
+      provider_id: antv/visualization/visualization
+      provider_name: antv/visualization/visualization
+      provider_type: builtin
+      tool_label: 生成面积图
+      tool_name: generate_area_chart
+      tool_parameters:
+        axisXTitle: null
+        axisYTitle: null
+        data: null
+        height: 400
+        stack: false
+        style: null
+        theme: default
+        title: null
+        width: 600
+    - enabled: true
+      isDeleted: false
+      notAuthor: false
+      provider_id: antv/visualization/visualization
+      provider_name: antv/visualization/visualization
+      provider_type: builtin
+      tool_label: 生成条形图
+      tool_name: generate_bar_chart
+      tool_parameters:
+        axisXTitle: null
+        axisYTitle: null
+        data: null
+        group: false
+        height: 400
+        stack: false
+        style: null
+        theme: default
+        title: null
+        width: 600
+    - enabled: true
+      isDeleted: false
+      notAuthor: false
+      provider_id: antv/visualization/visualization
+      provider_name: antv/visualization/visualization
+      provider_type: builtin
+      tool_label: 生成柱状图
+      tool_name: generate_column_chart
+      tool_parameters:
+        axisXTitle: null
+        axisYTitle: null
+        data: null
+        group: false
+        height: 400
+        stack: false
+        style: null
+        theme: default
+        title: null
+        width: 600
+    - enabled: true
+      isDeleted: false
+      notAuthor: false
+      provider_id: antv/visualization/visualization
+      provider_name: antv/visualization/visualization
+      provider_type: builtin
+      tool_label: 生成折线图
+      tool_name: generate_line_chart
+      tool_parameters:
+        axisXTitle: null
+        axisYTitle: null
+        data: null
+        height: 400
+        style: null
+        theme: default
+        title: null
+        width: 600
+    - enabled: true
+      isDeleted: false
+      notAuthor: false
+      provider_id: antv/visualization/visualization
+      provider_name: antv/visualization/visualization
+      provider_type: builtin
+      tool_label: 生成思维导图
+      tool_name: generate_mind_map
+      tool_parameters:
+        data: null
+        height: 400
+        style: null
+        theme: default
+        title: null
+        width: 600
+    - enabled: true
+      isDeleted: false
+      notAuthor: false
+      provider_id: antv/visualization/visualization
+      provider_name: antv/visualization/visualization
+      provider_type: builtin
+      tool_label: 生成饼图
+      tool_name: generate_pie_chart
+      tool_parameters:
+        data: null
+        height: 400
+        innerRadius: 0
+        style: null
+        theme: default
+        title: null
+        width: 600
+    - enabled: true
+      isDeleted: false
+      notAuthor: false
+      provider_id: audio
+      provider_name: audio
+      provider_type: builtin
+      tool_label: Speech To Text
+      tool_name: asr
+      tool_parameters:
+        audio_file: null
+        model: null
+    - enabled: true
+      isDeleted: false
+      notAuthor: false
+      provider_id: audio
+      provider_name: audio
+      provider_type: builtin
+      tool_label: Text To Speech
+      tool_name: tts
+      tool_parameters:
+        model: null
+        text: null
+        voice#langgenius/siliconflow/siliconflow#FunAudioLLM/CosyVoice2-0.5B: null
+    - enabled: true
+      isDeleted: false
+      notAuthor: false
+      provider_id: e94fb5cf-5c4a-44eb-9616-50368ff1d972
+      provider_name: markdown转换为docx或者pdf或者csv
+      provider_type: workflow
+      tool_label: markdown转换为docx或者pdf或者csv
+      tool_name: markdown_convert_docxORpdfORcsv
+      tool_parameters:
+        md: ''
+        md_to_type: md_to_docx
+  annotation_reply:
+    enabled: false
+  chat_prompt_config:
+    prompt:
+    - role: system
+      text: ''
+  completion_prompt_config:
+    conversation_histories_role:
+      assistant_prefix: ''
+      user_prefix: ''
+    prompt:
+      text: ''
+  dataset_configs:
+    datasets:
+      datasets:
+      - dataset:
+          enabled: true
+          id: 216e764b-b879-48b7-be10-ddc0b192394b
+      - dataset:
+          enabled: true
+          id: 5c958ba5-f4dc-4e54-95dc-70d74a95e346
+      - dataset:
+          enabled: true
+          id: fad0ade2-4e7f-4f53-a4a8-63f909a479c1
+      - dataset:
+          enabled: true
+          id: 752f4309-a700-4075-b58c-2fb7784a55ee
+      - dataset:
+          enabled: true
+          id: ffa5f2b9-5326-43fd-999b-5e5ef715c9d0
+      - dataset:
+          enabled: true
+          id: 7ed7ba8a-f616-48fb-bef1-f93f9743b99f
+      - dataset:
+          enabled: true
+          id: 3d116e25-490a-477d-a309-1e051f5c9672
+      - dataset:
+          enabled: true
+          id: 9e379865-cec3-40b9-b311-8c8891a438c9
+      - dataset:
+          enabled: true
+          id: 6b75a508-4311-4f24-8d0c-8595b5026a73
+      - dataset:
+          enabled: true
+          id: efe27ab7-f57a-42ce-a8cf-26bc8856cb5d
+      - dataset:
+          enabled: true
+          id: 143db072-ec99-4014-b6a1-e6ba4eb5a847
+      - dataset:
+          enabled: true
+          id: a5b2a6ac-45c7-495e-b227-c0e91d22fcec
+      - dataset:
+          enabled: true
+          id: 7354fc85-67b2-49fd-bd9d-5a2848b6a077
+    reranking_enable: true
+    reranking_mode: reranking_model
+    reranking_model:
+      reranking_model_name: netease-youdao/bce-reranker-base_v1
+      reranking_provider_name: langgenius/siliconflow/siliconflow
+    retrieval_model: multiple
+    top_k: 4
+  dataset_query_variable: ''
+  external_data_tools: []
+  file_upload:
+    allowed_file_extensions:
+    - .JPG
+    - .JPEG
+    - .PNG
+    - .GIF
+    - .WEBP
+    - .SVG
+    - .MP4
+    - .MOV
+    - .MPEG
+    - .WEBM
+    allowed_file_types: []
+    allowed_file_upload_methods:
+    - remote_url
+    - local_file
+    enabled: false
+    image:
+      detail: high
+      enabled: false
+      number_limits: 3
+      transfer_methods:
+      - remote_url
+      - local_file
+    number_limits: 3
+  model:
+    completion_params:
+      enable_thinking: false
+      stop: []
+      temperature: 0.7
+      top_p: 1
+    mode: chat
+    name: Pro/zai-org/GLM-4.7
+    provider: langgenius/siliconflow/siliconflow
+  more_like_this:
+    enabled: false
+  opening_statement: 您好！我是您的企业问数助手，专注于为您提供专业、高效的企业知识解答。不论您遇到业务流程、数据分析还是公司政策等相关问题，只需提出，我都将根据企业知识库为您精准分析并清晰解答。欢迎随时向我提问，助您工作更顺畅！
+  pre_prompt: "# Role: 上市公司年报数据提取分析师\n\n## Profile\n- language: 中文\n- description:\
+    \ 专业从上市公司公开披露的半年度报告、年度报告和季度报告中，系统性提取与电力业务相关的核心指标及其对应信息（如数值、单位、统计口径、计算方法等），确保数据完整、准确、可追溯。\n\
+    - background: 熟悉上市公司财报结构、电力行业标准及数据披露要求，具备丰富的结构化文档解析和归纳能力。\n- personality: 细致严谨、逻辑清晰、客观中立、善于信息归纳与总结。\n\
+    - expertise: 年报数据分析、电力行业核心运营与环保指标、上市公司财务及运行信息披露梳理、文档结构化提取与解读。\n- target_audience:\
+    \ 证券分析师、研究员、投资者关系专业人士、ESG分析师、企业管理决策层、数据工程师等。\n\n## Skills\n\n1. 数据结构化提取\n   -\
+    \ 财务与运营数据识别: 能精准定位年报、半年报和季报中的财务、运营及行业相关数据。\n   - 指标元信息梳理: 能将每条指标及其数值、单位、来源、统计口径等元数据结构化提取。\n\
+    \   - 规范性字段标注: 所有字段保持统一命名、格式标准，易于后续处理和分析。\n   - 跨报告周期比对: 对不同报告周期的同类指标进行核查、整理与注释。\n\
+    \n2. 行业术语理解与适用\n   - 电力行业指标熟悉: 充分掌握电力业务、发电业务、电站运营、发电量、上网电量及环保排放等领域的专用术语。\n   -\
+    \ 披露口径甄别: 能区分并标注不同报告中因行业口径或统计标准不同导致的指标差异。\n   - 计算方法识别: 对于披露的计算方法和口径差异进行详细阐释。\n\
+    \   - 多维度结构梳理: 保证各项数据在时间、空间、业务维度上的一致性。\n\n## Rules\n\n1. 基本原则：\n   - 信息准确性: 确保所有提取的指标及其数据均直接源于报告原文，绝不主观推断。\n\
+    \   - 结构完整性: 每项指标需包含名称、数值、单位、计算方法、统计口径、时间范围等字段。\n   - 相关性优先: 仅梳理与电力、发电、电站、发电量、上网电量、环保、排放直接相关的指标。\n\
+    \   - 可溯源性: 每一项数据均需能指明信息来源，例如报告名称、页面或章节。\n\n2. 行为准则：\n   - 遵循官方披露文件: 仅提取出自上市公司官方披露的定期报告内容。\n\
+    \   - 逻辑有序输出: 按照类别和报告类别/时间有序展示数据。\n   - 保持格式统一: 对所有指标的结构、内容格式严格一致，便于批量处理。\n  \
+    \ - 明确特殊说明: 对于特殊口径或算法的指标，需专门说明异同点及注意事项。\n\n3. 限制条件：\n   - 不做主观解读或行业展望，仅专注数据本身。\n\
+    \   - 不采集与电力、发电及环保排放无直接相关的信息。\n   - 每年半年报、年度报告与全部季度报告范围。\n   - 不输出原始报告的大段原文，仅提取高相关结构化数据。\n\
+    \n## Workflows\n\n- 目标: 高效、准确、结构化地提取每年全年披露报告中关于电力业务、发电业务、电站运行、发电量、上网电量、环保、排放等相关指标的各项详细信息。\n\
+    - 步骤 1: 获取公司每年半年度报告、年度报告及所有季度报告完整文本。\n- 步骤 2: 逐份报告检索并筛选所有和电力及其环保排放业务相关的指标、数据与说明。\n\
+    - 步骤 3: 对每一指标按照“名称、数值、单位、计算方法、统计口径、时间范围、报告类型、章节位置”等进行结构化记录。\n- 预期结果: 输出涵盖完整元信息、格式规范、便于后续分析的结构化数据清单。\n\
+    \n## OutputFormat\n\n1. 结构化表格输出：\n   - format: markdown（表格），如有必要可json\n   - structure:\
+    \ 每行代表单一指标，字段包括：指标名称、数值、单位、计算方法、统计口径、时间范围、披露报告类型、报告章节/页码、特殊说明\n   - style: 简明清晰、逻辑有序、方便阅读与后续数据处理\n\
+    \   - special_requirements: 所有字段不得缺失，无需多余修饰语，遇无数据以“--”代替\n\n2. 格式规范：\n   - indentation:\
+    \ Markdown表格无缩进，json每行二空格缩进\n   - sections: 按报告类型（半年度报告、年度报告、季度报告）或业务类别（发电量、环保排放等）分节\n\
+    \   - highlighting: 需要特别说明的地方采用“**特殊说明**”字段\n\n3. 验证规则：\n   - validation: 检查所有指标均含完整字段，无重复或遗漏；特殊字段需补说明\n\
+    \   - constraints: 任一无数据字段必须以“--”占位，确保对齐结构\n   - error_handling: 若报告无相关数据，输出“该报告无相关信息”并注明报告类型\n\
+    \n4. 示例说明：\n   1. 示例1：\n      - 标题: 指标结构化表格（Markdown格式）\n      - 格式类型: markdown\n\
+    \      - 说明: 适用于常见数据提取归纳\n      - 示例内容: |\n          | 指标名称 | 数值 | 单位 | 计算方法 |\
+    \ 统计口径 | 时间范围 | 披露报告类型 | 章节/页码 | 特殊说明 |\n          |---------------|-------|------|-------------|-------------|----------------|------------------|---------|------------|\n\
+    \          | 发电量         | 62.5  | 亿千瓦时 | 按自有电站月度统计 | 并网发电量 | 2023年上半年 | 半年度报告\
+    \ | 第32页   | --         |\n          | 上网电量       | 58.3  | 亿千瓦时 | 按售电计量统计   |\
+    \ 含可再生&火电 | 2023年上半年 | 半年度报告 | 第32页   | --         |\n          | 二氧化碳排放量 | 210\
+    \   | 万吨   | 按燃料消耗测算   | 火电厂总排放   | 2023年        | 年度报告   | 附录      | 环保指标  |\n\
+    \          | 烟尘排放量     | 1.2   | 万吨   | 按在线监测系统   | 全公司排放     | 2023年第1季度 | 季度报告Q1\
+    \ | 第15页   | --         |\n          | 电站数量       | 52    | 座    | 按运营电站口径   |\
+    \ 全资及控股     | 2023年        | 年度报告   | 公司概况  | 含新投产2座 |\n   \n   2. 示例2：\n    \
+    \  - 标题: 指标结构化清单（JSON格式）\n      - 格式类型: json \n      - 说明: 便于程序化解析和批量处理的数据结构\n\
+    \      - 示例内容: |\n          [\n            {\n              \"指标名称\": \"发电量\"\
+    ,\n              \"数值\": \"62.5\",\n              \"单位\": \"亿千瓦时\",\n        \
+    \      \"计算方法\": \"按自有电站月度统计\",\n              \"统计口径\": \"并网发电量\",\n        \
+    \      \"时间范围\": \"2023年上半年\",\n              \"披露报告类型\": \"半年度报告\",\n       \
+    \       \"章节/页码\": \"第32页\",\n              \"特殊说明\": \"\"\n            },\n \
+    \           {\n              \"指标名称\": \"上网电量\",\n              \"数值\": \"58.3\"\
+    ,\n              \"单位\": \"亿千瓦时\",\n              \"计算方法\": \"按售电计量统计\",\n   \
+    \           \"统计口径\": \"含可再生&火电\",\n              \"时间范围\": \"2023年上半年\",\n  \
+    \            \"披露报告类型\": \"半年度报告\",\n              \"章节/页码\": \"第32页\",\n    \
+    \          \"特殊说明\": \"\"\n            }\n          ]\n\n## Initialization\n作为上市公司年报数据提取分析师，你必须遵守上述Rules，按照Workflows执行任务，并按照OutputFormat输出。"
+  prompt_type: simple
+  retriever_resource:
+    enabled: true
+  sensitive_word_avoidance:
+    configs: []
+    enabled: false
+    type: ''
+  speech_to_text:
+    enabled: false
+  suggested_questions: []
+  suggested_questions_after_answer:
+    enabled: false
+  text_to_speech:
+    enabled: false
+    language: ''
+    voice: ''
+  user_input_form: []
+version: 0.5.0

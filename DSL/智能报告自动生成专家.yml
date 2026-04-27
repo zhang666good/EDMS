@@ -1,0 +1,260 @@
+app:
+  description: ''
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  mode: agent-chat
+  name: 智能报告自动生成专家
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: antv/visualization:0.2.0@798a255e7bf02e93b8a5717be235b833482be58daab1c64c79c954281da14b9c
+    version: null
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/siliconflow:0.0.43@18a2f3c3559d752b178bb4efd6b736dec8dd13c2d963fd6aa5b0a350e24e6826
+    version: null
+kind: app
+model_config:
+  agent_mode:
+    enabled: true
+    max_iteration: 10
+    prompt: null
+    strategy: function_call
+    tools:
+    - enabled: true
+      isDeleted: false
+      notAuthor: false
+      provider_id: antv/visualization/visualization
+      provider_name: antv/visualization/visualization
+      provider_type: builtin
+      tool_label: 生成面积图
+      tool_name: generate_area_chart
+      tool_parameters:
+        axisXTitle: null
+        axisYTitle: null
+        data: null
+        height: 400
+        stack: false
+        style: null
+        theme: default
+        title: null
+        width: 600
+    - enabled: true
+      isDeleted: false
+      notAuthor: false
+      provider_id: antv/visualization/visualization
+      provider_name: antv/visualization/visualization
+      provider_type: builtin
+      tool_label: 生成条形图
+      tool_name: generate_bar_chart
+      tool_parameters:
+        axisXTitle: null
+        axisYTitle: null
+        data: null
+        group: false
+        height: 400
+        stack: false
+        style: null
+        theme: default
+        title: null
+        width: 600
+    - enabled: true
+      isDeleted: false
+      notAuthor: false
+      provider_id: antv/visualization/visualization
+      provider_name: antv/visualization/visualization
+      provider_type: builtin
+      tool_label: 生成柱状图
+      tool_name: generate_column_chart
+      tool_parameters:
+        axisXTitle: null
+        axisYTitle: null
+        data: null
+        group: false
+        height: 400
+        stack: false
+        style: null
+        theme: default
+        title: null
+        width: 600
+    - enabled: true
+      isDeleted: false
+      notAuthor: false
+      provider_id: antv/visualization/visualization
+      provider_name: antv/visualization/visualization
+      provider_type: builtin
+      tool_label: 生成折线图
+      tool_name: generate_line_chart
+      tool_parameters:
+        axisXTitle: null
+        axisYTitle: null
+        data: null
+        height: 400
+        style: null
+        theme: default
+        title: null
+        width: 600
+    - enabled: true
+      isDeleted: false
+      notAuthor: false
+      provider_id: antv/visualization/visualization
+      provider_name: antv/visualization/visualization
+      provider_type: builtin
+      tool_label: 生成饼图
+      tool_name: generate_pie_chart
+      tool_parameters:
+        data: null
+        height: 400
+        innerRadius: 0
+        style: null
+        theme: default
+        title: null
+        width: 600
+    - enabled: true
+      isDeleted: false
+      notAuthor: false
+      provider_id: e94fb5cf-5c4a-44eb-9616-50368ff1d972
+      provider_name: markdown转换为docx或者pdf或者csv
+      provider_type: workflow
+      tool_label: markdown转换为docx或者pdf或者csv
+      tool_name: markdown_convert_docxORpdfORcsv
+      tool_parameters:
+        md: ''
+        md_to_type: md_to_docx
+  annotation_reply:
+    enabled: false
+  chat_prompt_config:
+    prompt:
+    - role: system
+      text: ''
+  completion_prompt_config:
+    conversation_histories_role:
+      assistant_prefix: ''
+      user_prefix: ''
+    prompt:
+      text: ''
+  dataset_configs:
+    datasets:
+      datasets:
+      - dataset:
+          enabled: true
+          id: 216e764b-b879-48b7-be10-ddc0b192394b
+      - dataset:
+          enabled: true
+          id: 5c958ba5-f4dc-4e54-95dc-70d74a95e346
+      - dataset:
+          enabled: true
+          id: fad0ade2-4e7f-4f53-a4a8-63f909a479c1
+      - dataset:
+          enabled: true
+          id: 752f4309-a700-4075-b58c-2fb7784a55ee
+      - dataset:
+          enabled: true
+          id: ffa5f2b9-5326-43fd-999b-5e5ef715c9d0
+      - dataset:
+          enabled: true
+          id: 7ed7ba8a-f616-48fb-bef1-f93f9743b99f
+      - dataset:
+          enabled: true
+          id: 3d116e25-490a-477d-a309-1e051f5c9672
+      - dataset:
+          enabled: true
+          id: 9e379865-cec3-40b9-b311-8c8891a438c9
+      - dataset:
+          enabled: true
+          id: 6b75a508-4311-4f24-8d0c-8595b5026a73
+      - dataset:
+          enabled: true
+          id: efe27ab7-f57a-42ce-a8cf-26bc8856cb5d
+      - dataset:
+          enabled: true
+          id: 143db072-ec99-4014-b6a1-e6ba4eb5a847
+      - dataset:
+          enabled: true
+          id: a5b2a6ac-45c7-495e-b227-c0e91d22fcec
+      - dataset:
+          enabled: true
+          id: 7354fc85-67b2-49fd-bd9d-5a2848b6a077
+    reranking_enable: true
+    reranking_mode: reranking_model
+    reranking_model:
+      reranking_model_name: netease-youdao/bce-reranker-base_v1
+      reranking_provider_name: langgenius/siliconflow/siliconflow
+    retrieval_model: multiple
+    top_k: 4
+  dataset_query_variable: ''
+  external_data_tools: []
+  file_upload:
+    allowed_file_extensions:
+    - .JPG
+    - .JPEG
+    - .PNG
+    - .GIF
+    - .WEBP
+    - .SVG
+    - .MP4
+    - .MOV
+    - .MPEG
+    - .WEBM
+    allowed_file_types: []
+    allowed_file_upload_methods:
+    - remote_url
+    - local_file
+    enabled: false
+    image:
+      detail: high
+      enabled: false
+      number_limits: 3
+      transfer_methods:
+      - remote_url
+      - local_file
+    number_limits: 3
+  model:
+    completion_params:
+      enable_thinking: false
+      stop: []
+    mode: chat
+    name: Pro/zai-org/GLM-4.7
+    provider: langgenius/siliconflow/siliconflow
+  more_like_this:
+    enabled: false
+  opening_statement: ''
+  pre_prompt: "# Role: 智能报告自动生成专家\n\n## Profile\n- language: 中文\n- description: 具备高效数据处理与文档生成能力的AI专家，能够基于数据分析结果，自动根据指定的Word模板输出规范、完整的正式报告，含智能补全的图表、结论和分析建议，报告内容可直接用于各种汇报与审批场景。\n\
+    - background: 深入了解自动化办公、数据分析及专业报告撰写流程，熟悉主流文档管理及格式化需求，具有丰富的模板化生成和企业级报告实战经验。\n-\
+    \ personality: 专业严谨、条理清晰、注重细节、追求高效、敏锐洞察用户需求。\n- expertise: 数据分析自动化、专业文档模板应用、内容智能补全、决策支持报告生成、可视化呈现。\n\
+    - target_audience: 企业管理者、数据分析师、决策支持部门、项目经理、高管助理等需要高效输出正式报告的用户群体。\n\n## Skills\n\
+    \n1. 报告自动生成\n   - Word模板适配: 根据用户指定的模板，精准还原目录、章节、样式与页眉页脚等格式。\n   - 结构化内容组织: 合理编排报告结构，自动分配章节及子标题，确保逻辑清晰、条理分明。\n\
+    \   - 图表智能插入: 自动识别分析数据，匹配适合的图表类型并补齐图表细节，增强数据可视化效果。\n   - 結论与建议自动生成: 基于分析结果，高质量产出精准、可操作的结论及分析建议。\n\
+    \n2. 内容精准补全\n   - 关键信息提炼: 从分析报告中高效提取重点数据、现象与洞察。\n   - 多场景适用: 适配汇报、审批、对外沟通等正式场合标准。\n\
+    \   - 一键导出: 快速生成可编辑Word文档，确保版式兼容性与内容完整。\n   - 格式校验与优化: 自动检查文档格式规范，无遗漏、无错误，提升正式度和可用性。\n\
+    \n## Rules\n\n1. 基本原则：\n   - 保证内容准确性: 报告内容基于最新、最完整的分析结果，不随意增加或遗漏重要信息。\n   - 严格遵循模板:\
+    \ 各章结构、样式、图表布局严格符合Word模板规范。\n   - 强调专业性: 编写语言正式、条理清晰，结论及建议具有决策参考价值。\n   - 注重信息保密:\
+    \ 保障报告所含数据、分析结果的安全性和隐私合规。\n\n2. 行为准则：\n   - 主动检查补全: 自动识别分析报告中的遗漏，主动补齐图表、解释、数据结论和建议。\n\
+    \   - 适应用户场景: 灵活应对不同审批、汇报、归档等不同报告应用需求。\n   - 高效输出: 避免冗余环节，确保文档生成过程快捷流畅。\n   -\
+    \ 可读性第一: 所有内容用词准确、逻辑连贯、层次分明，便于一读即懂、一用即审。\n\n3. 限制条件：\n   - 不输出虚假信息: 严禁编造数据和无据可依的结论。\n\
+    \   - 不脱离模板: 禁止擅自变更模板结构和布局。\n   - 不输出冗余内容: 所有内容精炼直观，去除无关赘述。\n   - 不泄露敏感数据: 未经授权不外传涉及安全、隐私的数据内容。\n\
+    \n## Workflows\n\n- 目标: 自动生成符合Word模板、内容完整规范、可直接用于汇报和审批的正式分析报告。\n- 步骤 1: 导入数据分析结果和指定的Word报告模板。\n\
+    - 步骤 2: 自动提取和结构化组织报告主要内容，包括封面、目录、分析正文、结论与建议等部分。\n- 步骤 3: 智能补齐和插入所需图表、数据指标、分析结论及针对性建议，确保内容全覆盖、格式规范、可直接导出。\n\
+    - 预期结果: 一份按Word模板标准、内容详实、附带图表与结论建议的正式电子报告，实现“一键成稿、即刻上报”。\n\n## Initialization\n\
+    作为智能报告自动生成专家，你必须遵守上述Rules，按照Workflows执行任务。"
+  prompt_type: simple
+  retriever_resource:
+    enabled: true
+  sensitive_word_avoidance:
+    configs: []
+    enabled: false
+    type: ''
+  speech_to_text:
+    enabled: false
+  suggested_questions: []
+  suggested_questions_after_answer:
+    enabled: false
+  text_to_speech:
+    enabled: false
+    language: ''
+    voice: ''
+  user_input_form: []
+version: 0.5.0

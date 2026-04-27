@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>知识库管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 登录页面样式 */
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            width: 400px;
+            max-width: 90%;
+        }
+
+        .login-container h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            color: #f44336;
+            text-align: center;
+            margin-top: 15px;
+            display: none;
+        }
+
+        /* 主应用样式 */
+        .app-container {
+            display: none;
+            width: 100%;
+            max-width: 1400px;
+            height: 90vh;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            height: 100%;
+            float: left;
+        }
+
+        .sidebar h2 {
+            margin-bottom: 30px;
+            font-size: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #34495e;
+        }
+
+        .nav-item {
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .nav-item:hover {
+            background: #34495e;
+        }
+
+        .nav-item.active {
+            background: #667eea;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 24px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logout-btn {
+            padding: 8px 20px;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #d32f2f;
+        }
+
+        /* 卡片样式 */
+        .card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        /* 按钮组 */
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn-primary {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-danger {
+            padding: 8px 15px;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+        }
+
+        .btn-success {
+            padding: 8px 15px;
+            background: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .btn-success:hover {
+            background: #45a049;
+        }
+
+        /* 表格样式 */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .table th,
+        .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .table th {
+            background: #f5f5f5;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .table tr:hover {
+            background: #f9f9f9;
+        }
+
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 500px;
+            max-width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #333;
+            font-size: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        /* 加载动画 */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 提示消息 */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: #333;
+            color: white;
+            border-radius: 5px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 2000;
+            display: none;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .toast.show {
+            display: block;
+        }
+
+        .toast.success {
+            background: #4caf50;
+        }
+
+        .toast.error {
+            background: #f44336;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* 文件上传区域 */
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.3s;
+            margin-bottom: 15px;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+        }
+
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-indexing {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-failed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+    <!-- 登录页面 -->
+    <div class="login-container" id="loginPage">
+        <h1>📚 知识库管理系统</h1>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" id="username" name="username" required placeholder="请输入用户名">
+            </div>
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" name="password" required placeholder="请输入密码">
+            </div>
+            <button type="submit" class="btn">登录</button>
+            <div class="error-message" id="errorMessage">用户名或密码错误</div>
+        </form>
+    </div>
+
+    <!-- 主应用 -->
+    <div class="app-container" id="appContainer">
+        <div class="sidebar">
+            <h2>📚 管理系统</h2>
+            <div class="nav-item active" data-page="datasets">知识库管理</div>
+            <div class="nav-item" data-page="documents">文档管理</div>
+            <div class="nav-item" data-page="upload">批量上传</div>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <h1 id="pageTitle">知识库管理</h1>
+                <div class="user-info">
+                    <span id="currentUser">管理员</span>
+                    <button class="logout-btn" onclick="logout()">退出登录</button>
+                </div>
+            </div>
+
+            <!-- 知识库列表页面 -->
+            <div id="datasetsPage" class="page-content">
+                <div class="btn-group">
+                    <button class="btn-primary" onclick="showCreateDatasetModal()">+ 创建知识库</button>
+                    <button class="btn-primary" onclick="loadDatasets()">🔄 刷新</button>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">知识库列表</span>
+                    </div>
+                    <div id="datasetsList"></div>
+                </div>
+            </div>
+
+            <!-- 文档管理页面 -->
+            <div id="documentsPage" class="page-content" style="display: none;">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">选择知识库</span>
+                    </div>
+                    <select id="datasetSelect" onchange="loadDocuments()" style="width: 100%; padding: 10px; margin-bottom: 20px;">
+                        <option value="">请选择知识库</option>
+                    </select>
+                </div>
+                <div id="documentsContent" style="display: none;">
+                    <div class="btn-group">
+                        <button class="btn-primary" onclick="showUploadDocumentModal()">+ 上传文档</button>
+                        <button class="btn-primary" onclick="loadDocuments()">🔄 刷新</button>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">文档列表</span>
+                        </div>
+                        <div id="documentsList"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 批量上传页面 -->
+            <div id="uploadPage" class="page-content" style="display: none;">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">批量上传文档</span>
+                    </div>
+                    <select id="batchDatasetSelect" style="width: 100%; padding: 10px; margin-bottom: 20px;">
+                        <option value="">请选择知识库</option>
+                    </select>
+                    <div class="upload-area" id="uploadArea">
+                        <p>📁 拖拽文件到此处或点击选择文件</p>
+                        <p style="color: #999; font-size: 14px; margin-top: 10px;">支持 PDF, DOC, DOCX, TXT, MD 等格式</p>
+                        <input type="file" id="batchFileInput" multiple accept=".pdf,.doc,.docx,.txt,.md" style="display: none;">
+                    </div>
+                    <div id="selectedFiles"></div>
+                    <button class="btn-primary" onclick="batchUpload()" style="margin-top: 15px;" id="batchUploadBtn" disabled>开始上传</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 创建知识库模态框 -->
+    <div class="modal" id="createDatasetModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>创建知识库</h2>
+                <button class="close-btn" onclick="closeModal('createDatasetModal')">&times;</button>
+            </div>
+            <form id="createDatasetForm">
+                <div class="form-group">
+                    <label>知识库名称 *</label>
+                    <input type="text" id="datasetName" required placeholder="请输入知识库名称">
+                </div>
+                <div class="form-group">
+                    <label>描述</label>
+                    <input type="text" id="datasetDescription" placeholder="请输入知识库描述（可选）">
+                </div>
+                <div class="form-group">
+                    <label>索引技术</label>
+                    <select id="indexingTechnique" style="width: 100%; padding: 10px;">
+                        <option value="high_quality">高质量</option>
+                        <option value="economy">经济</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">创建</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 上传文档模态框 -->
+    <div class="modal" id="uploadDocumentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>上传文档</h2>
+                <button class="close-btn" onclick="closeModal('uploadDocumentModal')">&times;</button>
+            </div>
+            <form id="uploadDocumentForm">
+                <div class="form-group">
+                    <label>选择文件 *</label>
+                    <input type="file" id="documentFile" required accept=".pdf,.doc,.docx,.txt,.md">
+                </div>
+                <div class="form-group">
+                    <label>文档名称（可选）</label>
+                    <input type="text" id="documentName" placeholder="默认为文件名">
+                </div>
+                <button type="submit" class="btn">上传</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 提示消息 -->
+    <div class="toast" id="toast"></div>
+
+    <script src="/web/app.js"></script>
+</body>
+</html>
