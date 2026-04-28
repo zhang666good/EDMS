@@ -1,0 +1,86 @@
+graph TB
+    subgraph "前端交互层"
+        A[NextChat Web界面]
+        B[移动端/第三方集成]
+    end
+
+    subgraph "应用网关层 (FastAPI)"
+        C[统一入口 main.py]
+        D[CORS/异常处理中间件]
+        E[智能路由网关 gateway.py]
+        F[知识库管理 API knowledge.py]
+        G[文档解析服务 mineru_file_parser.py]
+        H[语音识别服务 baidu_stt.py]
+    end
+
+    subgraph "AI引擎层 (Dify Platform)"
+        I[Agent 编排引擎]
+        J[LLM 模型 GLM-4/SiliconFlow]
+        K[Embedding 模型 bce-reranker-base_v1]
+        L[向量数据库 Vector DB]
+    end
+
+    subgraph "外部服务与数据层"
+        M[MinerU Cloud API 文档解析]
+        N[百度 STT API 语音识别]
+        O[电力行业专属知识库]
+    end
+
+    A -->|HTTP/HTTPS| C
+    B -->|RESTful API| C
+    C --> D
+    C --> E
+    C --> F
+    C --> G
+    C --> H
+    E -->|SSE 流式调用| I
+    F -->|Knowledge API| I
+    G -->|HTTP POST| M
+    H -->|HTTP POST| N
+    I --> J
+    I --> K
+    I --> L
+    L --> O
+graph TB
+    subgraph "前端交互层"
+        A[NextChat Web界面]
+        B[移动端/第三方集成]
+    end
+    
+    subgraph "应用网关层 (FastAPI)"
+        C[统一入口 main.py]
+        D[CORS/异常处理中间件]
+        E[智能路由网关 gateway.py]
+        F[知识库管理 API knowledge.py]
+        G[文档解析服务 mineru_file_parser.py]
+        H[语音识别服务 baidu_stt.py]
+    end
+    
+    subgraph "AI引擎层 (Dify Platform)"
+        I[Agent 编排引擎]
+        J[LLM 模型 GLM-4/SiliconFlow]
+        K[Embedding 模型 bce-reranker-base_v1]
+        L[向量数据库 Vector DB]
+    end
+    
+    subgraph "外部服务与数据层"
+        M[MinerU Cloud API 文档解析]
+        N[百度 STT API 语音识别]
+        O[电力行业专属知识库]
+    end
+    
+    A -->|HTTP/HTTPS| C
+    B -->|RESTful API| C
+    C --> D
+    C --> E
+    C --> F
+    C --> G
+    C --> H
+    E -->|SSE 流式调用| I
+    F -->|Knowledge API| I
+    G -->|HTTP POST| M
+    H -->|HTTP POST| N
+    I --> J
+    I --> K
+    I --> L
+    L --> O

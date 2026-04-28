@@ -14,6 +14,12 @@ from urllib import request as urllib_request
 import numpy as np
 from scipy import signal
 
+try:
+    from pydub import AudioSegment
+    PYDUB_AVAILABLE = True
+except ImportError:
+    PYDUB_AVAILABLE = False
+
 
 @dataclass
 class BaiduSpeechToTextError(Exception):
@@ -42,6 +48,8 @@ class BaiduSpeechToTextClient:
         "audio/amr": "amr",
         "audio/m4a": "m4a",
         "audio/x-m4a": "m4a",
+        "audio/webm": "webm",  # 添加 WebM 支持
+        "audio/x-webm": "webm",
     }
 
     _EXT_TO_FORMAT = {
@@ -52,6 +60,7 @@ class BaiduSpeechToTextClient:
         "mpga": "mp3",
         "amr": "amr",
         "m4a": "m4a",
+        "webm": "webm",  # 添加 WebM 扩展名支持
     }
 
     def __init__(
@@ -97,6 +106,59 @@ class BaiduSpeechToTextClient:
                 return wav_obj.getframerate(), wav_obj.getnchannels(), wav_obj.getsampwidth()
         except Exception:
             return None, None, None
+
+    @staticmethod
+    def _convert_webm_to_pcm(webm_content: bytes) -> bytes:
+        """Convert WebM audio to 16kHz mono 16-bit PCM (raw data, no WAV header).
+        
+        Args:
+            webm_content: WebM audio bytes
+            
+        Returns:
+            Raw PCM bytes (16kHz, mono, 16-bit little-endian, no header)
+        """
+        if not PYDUB_AVAILABLE:
+            raise ImportError(
+                "pydub is required for WebM conversion. "
+                "Install it with: pip install pydub"
+            )
+        
+        try:
+            # Load WebM audio
+            audio = AudioSegment.from_file(io.BytesIO(webm_content), format="webm")
+            
+            print(f"[STT] Original WebM: rate={audio.frame_rate}Hz, channels={audio.channels}, duration={len(audio)}ms, sample_width={audio.sample_width}")
+            
+            # Convert to 16kHz mono 16-bit
+            audio = audio.set_frame_rate(16000).set_channels(1).set_sample_width(2)
+            
+            # Get raw PCM data and ensure little-endian
+            pcm_data = audio.raw_data
+            
+            # Verify and fix byte order if needed (ensure little-endian)
+            # pydub returns little-endian by default, but let's be safe
+            if audio.sample_width == 2:
+                # Convert to numpy to verify/fix byte order and normalize volume
+                pcm_array = np.frombuffer(pcm_data, dtype='<i2')  # little-endian int16
+                
+                # Normalize volume to avoid too quiet audio
+                max_val = np.max(np.abs(pcm_array))
+                if max_val > 0 and max_val < 10000:  # If too quiet, amplify
+                    amplification = 15000.0 / max_val
+                    pcm_array = (pcm_array * amplification).astype(np.int16)
+                    print(f"[STT] Audio amplified by {amplification:.2f}x (max was {max_val})")
+                
+                pcm_data = pcm_array.tobytes()
+            
+            print(f"[STT] Converted PCM: duration={len(audio)}ms, size={len(pcm_data)} bytes, sample_width={audio.sample_width}")
+            print(f"[STT] PCM data preview (first 20 bytes): {pcm_data[:20].hex()}")
+            
+            return pcm_data
+        except Exception as e:
+            import traceback
+            print(f"[STT] WebM conversion failed: {e}")
+            print(traceback.format_exc())
+            raise ValueError(f"Failed to convert WebM to PCM: {str(e)}")
 
     @staticmethod
     def _normalize_wav_to_pcm16_mono(file_content: bytes) -> tuple[bytes, int, int]:
@@ -187,18 +249,37 @@ class BaiduSpeechToTextClient:
         actual_channel = channel or self.default_channel
         normalized_content = file_content
 
-        # WAV files often carry real sample rate/channel; normalize them to 16k mono PCM for Baidu.
-        if audio_format == "wav":
+        # WebM 文件需要转换为 PCM
+        if audio_format == "webm":
+            try:
+                print(f"[STT] Converting WebM to PCM...")
+                normalized_content = self._convert_webm_to_pcm(file_content)
+                audio_format = "pcm"
+                actual_rate = 16000
+                actual_channel = 1
+                print(f"[STT] WebM conversion successful, size: {len(normalized_content)} bytes")
+                print(f"[STT] Format: {audio_format}, Rate: {actual_rate}, Channel: {actual_channel}")
+            except Exception as e:
+                print(f"[STT] WebM conversion failed: {e}")
+                raise BaiduSpeechToTextError(
+                    400, 
+                    f"WebM conversion failed: {str(e)}",
+                    {"error": "webm_conversion_failed"}
+                )
+        # WAV 文件经常带有实际的采样率/声道；将它们标准化为 16k 单声道 PCM 以用于百度。
+        elif audio_format == "wav":
             try:
                 normalized_content, actual_rate, actual_channel = self._normalize_wav_to_pcm16_mono(file_content)
                 audio_format = "pcm"
+                print(f"[STT] WAV conversion successful, format: {audio_format}, rate: {actual_rate}, channel: {actual_channel}")
             except Exception:
-                # Fall back to original WAV payload if conversion fails.
+                # 如果转换失败，回退到原始 WAV 负载。
                 wav_rate, wav_channel = self._try_read_wav_meta(file_content)
                 if wav_rate:
                     actual_rate = wav_rate
                 if wav_channel:
                     actual_channel = wav_channel
+                print(f"[STT] Using original WAV, rate: {actual_rate}, channel: {actual_channel}")
 
         body = {
             "format": audio_format,
@@ -210,6 +291,22 @@ class BaiduSpeechToTextClient:
             "len": len(normalized_content),
         }
 
+        # 打印请求参数用于调试
+        print(f"[STT] Request params: format={audio_format}, rate={actual_rate}, channel={actual_channel}, len={len(normalized_content)}")
+        print(f"[STT] Base64 length: {len(body['speech'])} chars")
+        
+        # 检查音频数据是否有效
+        if len(normalized_content) < 1000:
+            print(f"[STT] WARNING: Audio data too small ({len(normalized_content)} bytes), may cause quality error")
+        
+        # 验证 PCM 数据大小是否符合预期
+        expected_size = (actual_rate * actual_channel * 2)  # 每秒字节数 = 采样率 * 声道数 * 2字节(16-bit)
+        duration_seconds = len(normalized_content) / expected_size if expected_size > 0 else 0
+        print(f"[STT] Estimated duration: {duration_seconds:.2f} seconds")
+        
+        if duration_seconds < 0.5:
+            print(f"[STT] WARNING: Audio duration too short ({duration_seconds:.2f}s), minimum recommended is 1s")
+
         req = urllib_request.Request(
             url=self.STT_URL,
             data=json.dumps(body).encode("utf-8"),
@@ -220,10 +317,13 @@ class BaiduSpeechToTextClient:
         try:
             with urllib_request.urlopen(req, timeout=self.timeout) as resp:
                 payload = self._parse_json(resp.read().decode("utf-8"))
+                print(f"[STT] Baidu API response: {json.dumps(payload, ensure_ascii=False)}")
         except urllib_error.HTTPError as exc:
             detail = self._parse_json(exc.read().decode("utf-8") if exc.fp else "")
+            print(f"[STT] HTTP Error: {exc.code}, detail: {detail}")
             raise BaiduSpeechToTextError(exc.code, "baidu stt request failed", detail) from exc
         except urllib_error.URLError as exc:
+            print(f"[STT] URL Error: {exc}")
             raise BaiduSpeechToTextError(502, "baidu stt upstream unavailable", str(exc)) from exc
 
         if isinstance(payload, dict) and payload.get("err_no") == 0:
@@ -232,5 +332,10 @@ class BaiduSpeechToTextClient:
                 return str(result[0])
             return ""
 
+        # 打印错误详情
+        err_no = payload.get("err_no") if isinstance(payload, dict) else "unknown"
+        err_msg = payload.get("err_msg") if isinstance(payload, dict) else "unknown"
+        print(f"[STT] Recognition failed: err_no={err_no}, err_msg={err_msg}")
+        
         raise BaiduSpeechToTextError(400, "baidu stt request failed", payload)
 
