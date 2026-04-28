@@ -24,16 +24,10 @@ from app.api.backend import router as backend_router
 app = FastAPI(title="Enterprise Decision Making System")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:3001",
-        "http://127.0.0.1:3001",
-        "http://0.0.0.0:3000",
-    ],
-    allow_credentials=False,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=["*"],  # 允许所有来源（IP/域名）
+    allow_credentials=False,  # 保持 False，因为通配符 "*" 不能与 True 同时使用
+    allow_methods=["*"],  # 允许所有 HTTP 方法
+    allow_headers=["*"],  # 允许所有请求头
 )
 app.include_router(gateway_router)
 app.include_router(openai_compat_router)

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import audioop
 import base64
 import io
 import json
@@ -11,6 +10,9 @@ from typing import Any, Optional
 from urllib import error as urllib_error
 from urllib import parse as urllib_parse
 from urllib import request as urllib_request
+
+import numpy as np
+from scipy import signal
 
 
 @dataclass
@@ -53,13 +55,13 @@ class BaiduSpeechToTextClient:
     }
 
     def __init__(
-        self,
-        api_key: str,
-        secret_key: str,
-        *,
-        timeout: int = 30,
-        default_rate: int = 16000,
-        default_channel: int = 1,
+            self,
+            api_key: str,
+            secret_key: str,
+            *,
+            timeout: int = 30,
+            default_rate: int = 16000,
+            default_channel: int = 1,
     ) -> None:
         self.api_key = api_key
         self.secret_key = secret_key
@@ -114,20 +116,36 @@ class BaiduSpeechToTextClient:
         if sampwidth not in (1, 2, 4):
             raise ValueError(f"unsupported wav sample width: {sampwidth}")
 
-        frames = raw_frames
+        # Convert raw bytes to numpy array based on sample width
+        if sampwidth == 1:
+            dtype = np.uint8
+            audio_data = np.frombuffer(raw_frames, dtype=dtype).astype(np.float64)
+            audio_data = (audio_data - 128) / 128.0  # Normalize to [-1, 1]
+        elif sampwidth == 2:
+            dtype = np.int16
+            audio_data = np.frombuffer(raw_frames, dtype=dtype).astype(np.float64)
+            audio_data = audio_data / 32768.0  # Normalize to [-1, 1]
+        else:  # sampwidth == 4
+            dtype = np.int32
+            audio_data = np.frombuffer(raw_frames, dtype=dtype).astype(np.float64)
+            audio_data = audio_data / 2147483648.0  # Normalize to [-1, 1]
+
+        # Convert stereo to mono
         if nchannels == 2:
-            frames = audioop.tomono(frames, sampwidth, 0.5, 0.5)
+            audio_data = audio_data.reshape(-1, 2).mean(axis=1)
 
-        if sampwidth != 2:
-            frames = audioop.lin2lin(frames, sampwidth, 2)
-            sampwidth = 2
-
+        # Resample to 16kHz if needed
         target_rate = 16000
         if framerate != target_rate:
-            frames, _ = audioop.ratecv(frames, sampwidth, 1, framerate, target_rate, None)
+            num_samples = int(len(audio_data) * target_rate / framerate)
+            audio_data = signal.resample(audio_data, num_samples)
             framerate = target_rate
 
-        return frames, framerate, 1
+        # Convert back to 16-bit PCM
+        audio_data = np.clip(audio_data, -1.0, 1.0)
+        pcm_data = (audio_data * 32767.0).astype(np.int16)
+
+        return pcm_data.tobytes(), framerate, 1
 
     def get_access_token(self) -> str:
         params = {
@@ -153,14 +171,14 @@ class BaiduSpeechToTextClient:
         return str(token)
 
     def recognize(
-        self,
-        *,
-        file_name: str,
-        file_content: bytes,
-        cuid: str,
-        content_type: Optional[str] = None,
-        rate: Optional[int] = None,
-        channel: Optional[int] = None,
+            self,
+            *,
+            file_name: str,
+            file_content: bytes,
+            cuid: str,
+            content_type: Optional[str] = None,
+            rate: Optional[int] = None,
+            channel: Optional[int] = None,
     ) -> str:
         access_token = self.get_access_token()
         audio_format = self._detect_format(file_name, content_type)
@@ -215,3 +233,4 @@ class BaiduSpeechToTextClient:
             return ""
 
         raise BaiduSpeechToTextError(400, "baidu stt request failed", payload)
+
