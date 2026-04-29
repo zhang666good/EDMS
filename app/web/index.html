@@ -461,6 +461,7 @@
             <div class="nav-item active" data-page="datasets">知识库管理</div>
             <div class="nav-item" data-page="documents">文档管理</div>
             <div class="nav-item" data-page="upload">批量上传</div>
+            <div class="nav-item" data-page="users">👥 用户管理</div>
         </div>
 
         <div class="main-content">
@@ -528,6 +529,31 @@
                     <button class="btn-primary" onclick="batchUpload()" style="margin-top: 15px;" id="batchUploadBtn" disabled>开始上传</button>
                 </div>
             </div>
+
+            <!-- 用户管理页面 -->
+            <div id="usersPage" class="page-content" style="display: none;">
+                <div class="btn-group">
+                    <button class="btn-primary" onclick="showCreateUserModal()">+ 创建用户</button>
+                    <button class="btn-primary" onclick="loadUsers()">🔄 刷新用户列表</button>
+                </div>
+                
+                <!-- 搜索框 -->
+                <div class="card">
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="userSearchInput" placeholder="搜索姓名/手机号/UID" 
+                               style="flex: 1; padding: 10px; border: 2px solid #e0e0e0; border-radius: 5px;">
+                        <button class="btn-primary" onclick="searchUsers()">搜索</button>
+                    </div>
+                </div>
+                
+                <!-- 用户列表 -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">注册用户列表</span>
+                    </div>
+                    <div id="usersList"></div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -576,6 +602,86 @@
                     <input type="text" id="documentName" placeholder="默认为文件名">
                 </div>
                 <button type="submit" class="btn">上传</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 设置角色模态框 -->
+    <div class="modal" id="setRoleModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>设置用户角色</h2>
+                <button class="close-btn" onclick="closeModal('setRoleModal')">&times;</button>
+            </div>
+            <form id="setRoleForm">
+                <input type="hidden" id="roleUid">
+                <div class="form-group">
+                    <label>用户姓名</label>
+                    <input type="text" id="roleUserName" readonly style="background: #f5f5f5;">
+                </div>
+                <div class="form-group">
+                    <label>选择角色 *</label>
+                    <select id="roleSelect" style="width: 100%; padding: 10px;" required>
+                        <option value="">请选择角色</option>
+                        <option value="综合决策者">综合决策者</option>
+                        <option value="企业分析师">企业分析师</option>
+                        <option value="电力行业专家">电力行业专家</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">保存</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- API Key展示模态框 -->
+    <div class="modal" id="apiKeyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>API Key</h2>
+                <button class="close-btn" onclick="closeModal('apiKeyModal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>用户</label>
+                <input type="text" id="apiKeyUserName" readonly style="background: #f5f5f5;">
+            </div>
+            <div class="form-group">
+                <label>API Key</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="apiKeyValue" readonly 
+                           style="flex: 1; padding: 10px; background: #f5f5f5; font-family: monospace;">
+                    <button class="btn-primary" onclick="copyApiKey()" style="width: auto;">复制</button>
+                </div>
+            </div>
+            <p style="color: #f44336; font-size: 14px; margin-top: 15px;">
+                ⚠️ 请妥善保管此API Key，泄露可能导致未授权访问！
+            </p>
+        </div>
+    </div>
+
+    <!-- 创建用户模态框 -->
+    <div class="modal" id="createUserModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>创建新用户</h2>
+                <button class="close-btn" onclick="closeModal('createUserModal')">&times;</button>
+            </div>
+            <form id="createUserForm">
+                <div class="form-group">
+                    <label>姓名 *</label>
+                    <input type="text" id="createUserName" required placeholder="请输入用户姓名" maxlength="50">
+                </div>
+                <div class="form-group">
+                    <label>手机号 *</label>
+                    <input type="tel" id="createUserPhone" required placeholder="请输入11位手机号" 
+                           pattern="^1[3-9]\d{9}$" maxlength="11">
+                    <small style="color: #999; font-size: 12px;">格式：1开头，11位数字</small>
+                </div>
+                <div style="background: #fff3cd; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+                    <p style="color: #856404; font-size: 13px; margin: 0;">
+                        ℹ️ 创建后将自动生成UID，请联系管理员设置角色和生成API Key
+                    </p>
+                </div>
+                <button type="submit" class="btn">创建用户</button>
             </form>
         </div>
     </div>

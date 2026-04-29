@@ -46,14 +46,25 @@ Enterprise Decision Making System (EDMS) 是一个智能化的企业决策支持
 - **年度财报分析** (`edms-annual-report`): 专业财务报表分析
 - **深度洞察** (`edms-deep-insight`): 企业数据深度挖掘
 - **自动报告生成** (`edms-auto-report`): 智能化报告自动生成
+- **电力行业标准查询** (`edms-power-standard`): 电力行业规范与技术标准
 
-### 4. 知识库管理
+### 4. 🆕 角色权限系统 (RBAC)
+- **基于角色的访问控制**: 通过 API Key 识别用户角色
+- **三种预定义角色**:
+  - 👷 **电力行业专家**: 仅可访问电力标准知识库
+  - 📊 **企业分析师**: 可访问企业年报和数据分析Agent
+  - 🎯 **综合决策者**: 可访问所有Agent和知识库
+- **细粒度权限管理**: 每个角色只能访问授权的Agent
+- **简单易用**: 基于前缀的API Key识别，无需数据库
+- **详细文档**: 查看 [ROLE_AUTH_GUIDE.md](ROLE_AUTH_GUIDE.md) 和 [CHECKLIST.md](CHECKLIST.md)
+
+### 5. 知识库管理
 - 创建和管理 Dify 知识库
 - 文档上传、更新、删除
 - 分段管理和索引状态查询
 - 语义检索和相关性排序
 
-### 5. 语音识别
+### 6. 语音识别
 - 集成百度语音识别 (STT)
 - 支持实时语音转文字
 - 多语言支持
@@ -110,6 +121,7 @@ cp .env.example .env
 DIFY_AGENT_ANNUAL_REPORT_KEY=your-annual-report-key
 DIFY_AGENT_DEEP_INSIGHT_KEY=your-deep-insight-key
 DIFY_AGENT_AUTO_REPORT_KEY=your-auto-report-key
+DIFY_AGENT_POWER_STANDARD_KEY=your-power-standard-key
 
 # Dify API Base URL
 DIFY_API_BASE_URL=http://your-dify-server:port/
@@ -121,6 +133,21 @@ BAIDU_STT_TIMEOUT=30
 
 # MinerU Token
 MINERU_TOKEN=your-mineru-jwt-token
+```
+
+**🆕 角色权限系统配置**（可选）:
+
+如需启用基于角色的访问控制，请参考 [ROLE_AUTH_GUIDE.md](ROLE_AUTH_GUIDE.md) 和 [.env.role.example](.env.role.example)。
+
+快速生成角色API Key：
+```python
+from app.api.role_auth import generate_role_api_key
+import secrets
+
+# 为每个用户生成独立Key
+suffix = secrets.token_hex(4)  # 8位随机字符
+key = generate_role_api_key("power_expert", suffix)
+print(f"电力行业专家: {key}")  # edms-power-expert-xxxx
 ```
 
 #### 5. 启动后端服务
@@ -248,6 +275,31 @@ python -m pytest test/
 # 运行特定测试
 python -m pytest test/test_gateway_api.py -v
 python -m pytest test/test_knowledge.py -v
+
+# 🆕 运行角色权限系统测试
+python test_role_auth.py
+```
+
+**角色系统快速测试**：
+
+```bash
+# 测试1: 验证角色识别和权限
+python test_role_auth.py
+
+# 测试2: 测试API接口（需要先启动服务）
+# 电力专家查看可用模型
+curl http://localhost:8000/v1/models \
+  -H "Authorization: Bearer edms-power-expert-test1234"
+
+# 企业分析师查看可用模型
+curl http://localhost:8000/v1/models \
+  -H "Authorization: Bearer edms-business-analyst-test5678"
+
+# 越权访问测试（应返回403）
+curl -X POST http://localhost:8000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer edms-power-expert-test1234" \
+  -d '{"model": "edms-annual-report", "messages": [{"role": "user", "content": "测试"}], "stream": false}'
 ```
 
 ## 📦 主要依赖项
@@ -406,6 +458,35 @@ python -m app.services.knowledge
 # 或设置 PYTHONPATH
 export PYTHONPATH=$PYTHONPATH:$(pwd)
 ```
+
+### 🆕 Q7: 角色权限系统相关问题
+
+**问题1: 如何生成角色API Key？**
+
+```python
+from app.api.role_auth import generate_role_api_key
+import secrets
+
+suffix = secrets.token_hex(4)  # 8位随机字符
+key = generate_role_api_key("power_expert", suffix)
+print(key)  # edms-power-expert-xxxx
+```
+
+**问题2: 403 ACCESS_DENIED 错误**
+
+检查：
+- API Key格式是否正确（应为 `edms-{role}-xxxxxxxx`）
+- Authorization头是否正确传递
+- 角色是否有权限访问该Agent
+
+**问题3: 如何添加新角色？**
+
+修改 `app/api/role_auth.py` 中的 `ROLE_TO_AGENTS` 字典即可。
+
+**详细文档**: 
+- 📖 [角色权限使用指南](ROLE_AUTH_GUIDE.md)
+- ✅ [实施总结](IMPLEMENTATION_SUMMARY.md)
+- 📋 [部署检查清单](CHECKLIST.md)
 
 感谢以下开源项目：
 

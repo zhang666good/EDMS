@@ -1,9 +1,8 @@
 // API 配置
 const API_BASE_URL = 'http://127.0.0.1:8000/api/v1/backend';
+const USER_API_BASE_URL = '/users';  // 用户管理API
+const AUTH_API_BASE_URL = '/auth';   // 认证API
 
-// 登录凭证（从 .env 读取，这里硬编码）
-const ADMIN_USERNAME = 'zhang666';
-const ADMIN_PASSWORD = 'Python666good@';
 
 // 全局状态
 let currentDatasetId = null;
@@ -11,21 +10,45 @@ let selectedBatchFiles = [];
 
 // ==================== 登录功能 ====================
 
-document.getElementById('loginForm').addEventListener('submit', function(e) {
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
     
-    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-        // 登录成功
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('username', username);
-        showApp();
-        showToast('登录成功', 'success');
-    } else {
-        // 登录失败
+    try {
+        // 调用后端登录API
+        const response = await fetch(`${AUTH_API_BASE_URL}/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        
+        const result = await response.json();
+        
+        if (result.code === 200) {
+            // 登录成功，保存Token和用户信息
+            const { access_token, user_info } = result.data;
+            
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('token', access_token);
+            localStorage.setItem('username', user_info.name);
+            localStorage.setItem('userRole', user_info.role);
+            
+            showApp();
+            showToast('登录成功', 'success');
+        } else {
+            // 登录失败
+            document.getElementById('errorMessage').style.display = 'block';
+            document.getElementById('errorMessage').textContent = result.message || '用户名或密码错误';
+            setTimeout(() => {
+                document.getElementById('errorMessage').style.display = 'none';
+            }, 3000);
+        }
+    } catch (error) {
+        console.error('登录失败:', error);
         document.getElementById('errorMessage').style.display = 'block';
+        document.getElementById('errorMessage').textContent = '网络连接失败，请检查服务是否启动';
         setTimeout(() => {
             document.getElementById('errorMessage').style.display = 'none';
         }, 3000);
@@ -43,7 +66,9 @@ function showApp() {
 
 function logout() {
     localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('token');
     localStorage.removeItem('username');
+    localStorage.removeItem('userRole');
     document.getElementById('loginPage').style.display = 'block';
     document.getElementById('appContainer').style.display = 'none';
     document.getElementById('username').value = '';
@@ -76,7 +101,8 @@ document.querySelectorAll('.nav-item').forEach(item => {
         const titles = {
             'datasets': '知识库管理',
             'documents': '文档管理',
-            'upload': '批量上传'
+            'upload': '批量上传',
+            'users': '用户管理'
         };
         document.getElementById('pageTitle').textContent = titles[page];
         
@@ -87,6 +113,8 @@ document.querySelectorAll('.nav-item').forEach(item => {
             loadDatasetSelect();
         } else if (page === 'upload') {
             loadBatchDatasetSelect();
+        } else if (page === 'users') {
+            loadUsers();
         }
     });
 });
@@ -556,5 +584,264 @@ function formatFileSize(bytes) {
 window.addEventListener('click', function(e) {
     if (e.target.classList.contains('modal')) {
         e.target.classList.remove('show');
+    }
+});
+
+// ==================== 用户管理功能 ====================
+
+// 加载用户列表
+async function loadUsers() {
+    try {
+        const response = await fetch(`${USER_API_BASE_URL}/list`);
+        const users = await response.json();
+        
+        if (users && users.length > 0) {
+            renderUsersList(users);
+        } else {
+            document.getElementById('usersList').innerHTML = `
+                <div class="empty-state">
+                    <p>暂无注册用户</p>
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('加载用户列表失败:', error);
+        showToast('加载用户列表失败', 'error');
+    }
+}
+
+// 渲染用户列表
+function renderUsersList(users) {
+    const html = `
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>姓名</th>
+                    <th>手机号</th>
+                    <th>UID</th>
+                    <th>角色</th>
+                    <th>API Key</th>
+                    <th>注册时间</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${users.map(user => `
+                    <tr>
+                        <td><strong>${user.name}</strong></td>
+                        <td>${user.phone}</td>
+                        <td style="font-family: monospace; font-size: 12px;">${user.uid}</td>
+                        <td>
+                            <span style="padding: 4px 8px; border-radius: 4px; background: ${getRoleColor(user.role)}; color: white; font-size: 12px;">
+                                ${user.role || '未设置'}
+                            </span>
+                        </td>
+                        <td>
+                            ${user.api_key ? 
+                                `<span style="font-family: monospace; font-size: 11px;">${user.api_key.substring(0, 20)}...</span>` : 
+                                '<span style="color: #999;">未生成</span>'
+                            }
+                        </td>
+                        <td>${formatDate(user.created_at)}</td>
+                        <td>
+                            <button class="btn-success" onclick="showSetRoleModal('${user.uid}', '${user.name}', '${user.role}')">设置角色</button>
+                            ${user.api_key ? 
+                                `<button class="btn-primary" onclick="showApiKey('${user.name}', '${user.api_key}')" style="margin-left: 5px;">查看Key</button>` :
+                                `<button class="btn-primary" onclick="generateApiKey('${user.uid}')" style="margin-left: 5px;">生成Key</button>`
+                            }
+                        </td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+    
+    document.getElementById('usersList').innerHTML = html;
+}
+
+// 获取角色颜色
+function getRoleColor(role) {
+    const colors = {
+        '综合决策者': '#667eea',
+        '企业分析师': '#f093fb',
+        '电力行业专家': '#4facfe',
+        'admin': '#f44336'
+    };
+    return colors[role] || '#999';
+}
+
+// 搜索用户
+async function searchUsers() {
+    const keyword = document.getElementById('userSearchInput').value.trim();
+    
+    if (!keyword) {
+        showToast('请输入搜索关键词', 'error');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${USER_API_BASE_URL}/search`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ keyword })
+        });
+        
+        const users = await response.json();
+        
+        if (users && users.length > 0) {
+            renderUsersList(users);
+            showToast(`找到 ${users.length} 个用户`, 'success');
+        } else {
+            document.getElementById('usersList').innerHTML = `
+                <div class="empty-state">
+                    <p>未找到匹配的用户</p>
+                </div>
+            `;
+            showToast('未找到匹配的用户', 'error');
+        }
+    } catch (error) {
+        console.error('搜索用户失败:', error);
+        showToast('搜索失败', 'error');
+    }
+}
+
+// 显示设置角色模态框
+function showSetRoleModal(uid, name, currentRole) {
+    document.getElementById('roleUid').value = uid;
+    document.getElementById('roleUserName').value = name;
+    document.getElementById('roleSelect').value = currentRole || '';
+    document.getElementById('setRoleModal').classList.add('show');
+}
+
+// 提交设置角色
+document.getElementById('setRoleForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const uid = document.getElementById('roleUid').value;
+    const role = document.getElementById('roleSelect').value;
+    
+    try {
+        const response = await fetch(`${USER_API_BASE_URL}/set-role`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ uid, role })
+        });
+        
+        const result = await response.json();
+        
+        if (result.code === 200) {
+            showToast(result.message, 'success');
+            closeModal('setRoleModal');
+            loadUsers();
+        } else {
+            showToast('设置失败: ' + result.message, 'error');
+        }
+    } catch (error) {
+        console.error('设置角色失败:', error);
+        showToast('设置失败', 'error');
+    }
+});
+
+// 生成API Key
+async function generateApiKey(uid) {
+    if (!confirm('确定要为此用户生成API Key吗？')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${USER_API_BASE_URL}/generate-api-key`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ uid })
+        });
+        
+        const result = await response.json();
+        
+        if (result.code === 200) {
+            // 获取用户信息
+            const userResponse = await fetch(`${USER_API_BASE_URL}/${uid}`);
+            const user = await userResponse.json();
+            
+            showApiKey(user.name, result.data.api_key);
+            showToast('API Key生成成功', 'success');
+            loadUsers();
+        } else {
+            showToast('生成失败: ' + result.message, 'error');
+        }
+    } catch (error) {
+        console.error('生成API Key失败:', error);
+        showToast('生成失败', 'error');
+    }
+}
+
+// 显示API Key
+function showApiKey(userName, apiKey) {
+    document.getElementById('apiKeyUserName').value = userName;
+    document.getElementById('apiKeyValue').value = apiKey;
+    document.getElementById('apiKeyModal').classList.add('show');
+}
+
+// 复制API Key
+function copyApiKey() {
+    const apiKeyInput = document.getElementById('apiKeyValue');
+    apiKeyInput.select();
+    document.execCommand('copy');
+    showToast('API Key已复制到剪贴板', 'success');
+}
+
+// ==================== 创建用户功能 ====================
+
+// 显示创建用户模态框
+function showCreateUserModal() {
+    document.getElementById('createUserName').value = '';
+    document.getElementById('createUserPhone').value = '';
+    document.getElementById('createUserModal').classList.add('show');
+}
+
+// 提交创建用户表单
+document.getElementById('createUserForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const name = document.getElementById('createUserName').value.trim();
+    const phone = document.getElementById('createUserPhone').value.trim();
+    
+    // 验证手机号格式
+    if (!/^1[3-9]\d{9}$/.test(phone)) {
+        showToast('请输入正确的11位手机号', 'error');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${USER_API_BASE_URL}/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, phone })
+        });
+        
+        const result = await response.json();
+        
+        if (result.code === 200) {
+            showToast('用户创建成功！UID: ' + result.data.uid, 'success');
+            closeModal('createUserModal');
+            
+            // 显示新用户信息
+            setTimeout(() => {
+                alert(
+                    `✅ 用户创建成功！\n\n` +
+                    `姓名：${result.data.name}\n` +
+                    `手机号：${result.data.phone}\n` +
+                    `UID：${result.data.uid}\n\n` +
+                    `⚠️ 请记录UID，后续需要用它来设置角色和生成API Key`
+                );
+            }, 300);
+            
+            // 刷新用户列表
+            loadUsers();
+        } else {
+            showToast('创建失败: ' + result.message, 'error');
+        }
+    } catch (error) {
+        console.error('创建用户失败:', error);
+        showToast('创建失败，请检查网络连接', 'error');
     }
 });

@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Optional
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, Body, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Body, UploadFile, Header
 from fastapi.responses import PlainTextResponse, StreamingResponse
 
 try:
@@ -24,6 +24,7 @@ from app.schema.gateway import (
 )
 from app.services.baidu_stt import BaiduSpeechToTextClient, BaiduSpeechToTextError
 from app.services.dify_gateway import DifyAgent, DifyGatewayClient, DifyGatewayError, final_answer_sse_iterator
+from app.api.role_auth import get_role_from_api_key, validate_role_access, get_allowed_agents_for_role
 
 
 router = APIRouter(prefix="/api/v1/gateway", tags=["dify-gateway"])
@@ -34,12 +35,14 @@ AGENT_ALIAS_TO_ENV = {
     "annual_report_analyst": ("上市公司年报数据提取分析师", "DIFY_AGENT_ANNUAL_REPORT_KEY"),
     "deep_insight_analyst": ("深度洞察分析师", "DIFY_AGENT_DEEP_INSIGHT_KEY"),
     "auto_report_expert": ("智能报告自动生成专家", "DIFY_AGENT_AUTO_REPORT_KEY"),
+    "power_standard_query": ("电力行业专家", "DIFY_AGENT_POWER_STANDARD_KEY"),
 }
 
 INTENT_ROUTE_MAP = {
     "query": "annual_report_analyst",
     "compare": "deep_insight_analyst",
     "explain": "auto_report_expert",
+    "power_standard_query": "power_standard_query",
 }
 
 DEFAULT_AGENT_ALIAS = "deep_insight_analyst"
@@ -64,6 +67,24 @@ def _http_error(status_code: int, code: str, message: str, detail=None) -> HTTPE
     )
 
 
+def _extract_role_from_header(authorization: Optional[str]) -> Optional[str]:
+    """
+    从Authorization头中提取角色
+    
+    支持的格式：
+    - Bearer edms-power-expert-xxx
+    - edms-power-expert-xxx
+    """
+    if not authorization:
+        return None
+    
+    token = authorization
+    if authorization.startswith("Bearer "):
+        token = authorization[7:]
+    
+    return get_role_from_api_key(token.strip())
+
+
 def _route_by_query(query: str) -> str:
     text = query.strip()
     for intent_name, keywords in KEYWORD_ROUTE_RULES:
@@ -72,19 +93,62 @@ def _route_by_query(query: str) -> str:
     return DEFAULT_AGENT_ALIAS
 
 
-def resolve_agent_alias(request: ChatMessageRequest) -> str:
+def resolve_agent_alias(request: ChatMessageRequest, role: Optional[str] = None) -> str:
     if request.routing_mode.value == "manual":
         if not request.agent:
             raise _http_error(400, "AGENT_REQUIRED", "Manual routing requires explicit agent", None)
+        
+        # 如果有角色信息，进行权限验证
+        if role:
+            if not validate_role_access(role, request.agent):
+                allowed = get_allowed_agents_for_role(role)
+                raise _http_error(
+                    403, 
+                    "ACCESS_DENIED", 
+                    f"Role '{role}' cannot access agent '{request.agent}'. Allowed agents: {', '.join(allowed)}",
+                    None
+                )
         return request.agent
 
     if request.agent:
+        # 同样需要验证权限
+        if role and not validate_role_access(role, request.agent):
+            allowed = get_allowed_agents_for_role(role)
+            raise _http_error(
+                403, 
+                "ACCESS_DENIED", 
+                f"Role '{role}' cannot access agent '{request.agent}'. Allowed agents: {', '.join(allowed)}",
+                None
+            )
         return request.agent
 
     if request.intent is not None:
-        return INTENT_ROUTE_MAP[request.intent.value]
+        target_agent = INTENT_ROUTE_MAP[request.intent.value]
+        # 自动路由也需要验证权限
+        if role and not validate_role_access(role, target_agent):
+            raise _http_error(
+                403, 
+                "ACCESS_DENIED", 
+                f"Role '{role}' does not have permission for intent '{request.intent.value}'",
+                None
+            )
+        return target_agent
 
-    return _route_by_query(request.query)
+    target_agent = _route_by_query(request.query)
+    # 关键词路由也需要验证权限
+    if role and not validate_role_access(role, target_agent):
+        # 如果没有权限，返回默认Agent（但也要验证默认Agent的权限）
+        if validate_role_access(role, DEFAULT_AGENT_ALIAS):
+            return DEFAULT_AGENT_ALIAS
+        else:
+            raise _http_error(
+                403, 
+                "ACCESS_DENIED", 
+                f"Role '{role}' has no accessible agents",
+                None
+            )
+    
+    return target_agent
 
 
 def _normalize_dify_base_url(raw_base_url: str) -> str:
@@ -141,9 +205,23 @@ def get_baidu_stt_client() -> BaiduSpeechToTextClient:
 
 
 @router.get("/agents", response_model=AgentListResponse)
-def list_agents(client: DifyGatewayClient = Depends(get_gateway_client)) -> AgentListResponse:
-    agents = [AgentInfo(key=item.alias, name=item.name) for item in client.list_agents()]
-    return AgentListResponse(agents=agents)
+def list_agents(
+    client: DifyGatewayClient = Depends(get_gateway_client),
+    authorization: Optional[str] = Header(default=None, alias="Authorization")
+) -> AgentListResponse:
+    """
+    列出当前角色可访问的Agent
+    """
+    role = _extract_role_from_header(authorization)
+    
+    all_agents = [AgentInfo(key=item.alias, name=item.name) for item in client.list_agents()]
+    
+    # 如果有角色限制，过滤Agent列表
+    if role:
+        allowed_agents = get_allowed_agents_for_role(role)
+        all_agents = [agent for agent in all_agents if agent.key in allowed_agents]
+    
+    return AgentListResponse(agents=all_agents)
 
 
 @router.get("/health")
@@ -167,7 +245,17 @@ def gateway_health(client: DifyGatewayClient = Depends(get_gateway_client)) -> d
 
 
 @router.post("/chat")
-def chat_message(request: ChatMessageRequest, client: DifyGatewayClient = Depends(get_gateway_client)):
+def chat_message(
+    request: ChatMessageRequest, 
+    client: DifyGatewayClient = Depends(get_gateway_client),
+    authorization: Optional[str] = Header(default=None, alias="Authorization")
+):
+    """
+    聊天接口 - 支持基于角色的访问控制
+    """
+    # 提取角色信息
+    role = _extract_role_from_header(authorization)
+    
     if request.response_mode.value != "streaming":
         raise _http_error(
             400,
@@ -177,7 +265,7 @@ def chat_message(request: ChatMessageRequest, client: DifyGatewayClient = Depend
         )
 
     payload = request.model_dump(exclude_none=True)
-    payload["agent"] = resolve_agent_alias(request)
+    payload["agent"] = resolve_agent_alias(request, role)
 
     available_agents = {item.alias for item in client.list_agents()}
     if payload["agent"] not in available_agents:

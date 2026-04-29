@@ -20,6 +20,8 @@ from app.api.openai_compat import router as openai_compat_router
 from app.api.file_upload_and_context import router as file_upload_router
 from app.api.knowledge import router as knowledge_router
 from app.api.backend import router as backend_router
+from app.api.user_management import router as user_management_router
+from app.api.auth import router as auth_router
 
 app = FastAPI(title="Enterprise Decision Making System")
 app.add_middleware(
@@ -34,6 +36,8 @@ app.include_router(openai_compat_router)
 app.include_router(file_upload_router)
 app.include_router(knowledge_router)
 app.include_router(backend_router)
+app.include_router(user_management_router)
+app.include_router(auth_router)
 
 # 挂载静态文件目录（知识库管理页面）
 web_dir = Path(__file__).resolve().parent / "app" / "web"
