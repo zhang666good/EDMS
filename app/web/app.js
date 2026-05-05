@@ -1,5 +1,7 @@
 // API 配置
-const API_BASE_URL = 'http://127.0.0.1:8000/api/v1/backend';
+//该文件qwen AI 生成并修改
+const API_BASE_URL = 'http://127.0.0.1:8000/api/v1/backend';  // 从.env中的FAST_API_BASE_URL配置
+
 const USER_API_BASE_URL = '/users';  // 用户管理API
 const AUTH_API_BASE_URL = '/auth';   // 认证API
 
@@ -7,6 +9,8 @@ const AUTH_API_BASE_URL = '/auth';   // 认证API
 // 全局状态
 let currentDatasetId = null;
 let selectedBatchFiles = [];
+let sseSearchResults = [];  // 上交所搜索结果
+let selectedSSEItems = new Set();  // 选中的上交所项目
 
 // ==================== 登录功能 ====================
 
@@ -78,6 +82,10 @@ function logout() {
 
 // 检查登录状态
 window.addEventListener('load', function() {
+    console.log('[页面加载] 页面已加载');
+    console.log('[页面加载] sseImportPage 存在:', !!document.getElementById('sseImportPage'));
+    console.log('[页面加载] 导航项数量:', document.querySelectorAll('.nav-item').length);
+    
     if (localStorage.getItem('isLoggedIn') === 'true') {
         showApp();
     }
@@ -88,6 +96,7 @@ window.addEventListener('load', function() {
 document.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', function() {
         const page = this.dataset.page;
+        console.log('[导航切换] 点击了:', page);
         
         // 更新导航状态
         document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
@@ -95,13 +104,20 @@ document.querySelectorAll('.nav-item').forEach(item => {
         
         // 切换页面
         document.querySelectorAll('.page-content').forEach(p => p.style.display = 'none');
-        document.getElementById(page + 'Page').style.display = 'block';
+        const targetPage = document.getElementById(page + 'Page');
+        if (targetPage) {
+            targetPage.style.display = 'block';
+            console.log('[导航切换] 显示页面:', page + 'Page');
+        } else {
+            console.error('[导航切换] 找不到页面:', page + 'Page');
+        }
         
         // 更新标题
         const titles = {
             'datasets': '知识库管理',
             'documents': '文档管理',
             'upload': '批量上传',
+            'sse-import': '上交所公告导入',
             'users': '用户管理'
         };
         document.getElementById('pageTitle').textContent = titles[page];
@@ -113,6 +129,9 @@ document.querySelectorAll('.nav-item').forEach(item => {
             loadDatasetSelect();
         } else if (page === 'upload') {
             loadBatchDatasetSelect();
+        } else if (page === 'sse-import') {
+            console.log('[上交所导入] 加载知识库选择器');
+            loadSSEDatasetSelect();
         } else if (page === 'users') {
             loadUsers();
         }
@@ -562,7 +581,22 @@ function showToast(message, type = 'success') {
 
 function formatDate(dateString) {
     if (!dateString) return '-';
-    const date = new Date(dateString);
+    
+    // 处理 Unix 时间戳（秒级）
+    let timestamp = dateString;
+    if (typeof dateString === 'number' || (typeof dateString === 'string' && /^\d{10}$/.test(dateString))) {
+        // 如果是10位数字，说明是秒级时间戳，需要转换为毫秒
+        timestamp = parseInt(dateString) * 1000;
+    }
+    
+    const date = new Date(timestamp);
+    
+    // 检查日期是否有效
+    if (isNaN(date.getTime())) {
+        console.warn('[formatDate] 无效的日期:', dateString);
+        return '-';
+    }
+    
     return date.toLocaleString('zh-CN', {
         year: 'numeric',
         month: '2-digit',
@@ -845,3 +879,286 @@ document.getElementById('createUserForm').addEventListener('submit', async funct
         showToast('创建失败，请检查网络连接', 'error');
     }
 });
+
+// ==================== 上交所公告导入功能 ====================
+
+// 加载知识库选择器
+async function loadSSEDatasetSelect() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/datasets`);
+        const data = await response.json();
+        
+        const select = document.getElementById('sseDatasetSelect');
+        select.innerHTML = '<option value="">请选择知识库</option>';
+        
+        if (data.data) {
+            data.data.forEach(dataset => {
+                const option = document.createElement('option');
+                option.value = dataset.id;
+                option.textContent = dataset.name;
+                select.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('加载知识库列表失败:', error);
+    }
+}
+
+// 搜索上交所公告
+async function searchSSEAnnouncements() {
+    const keyword = document.getElementById('sseKeyword').value.trim();
+    
+    if (!keyword) {
+        showToast('请输入搜索关键词', 'error');
+        return;
+    }
+    
+    const limit = parseInt(document.getElementById('sseLimit').value) || 10;
+    const page = parseInt(document.getElementById('ssePage').value) || 0;
+    const timeStart = document.getElementById('sseTimeStart').value;
+    const timeEnd = document.getElementById('sseTimeEnd').value;
+    
+    showToast('正在搜索...', 'success');
+    
+    try {
+        const requestBody = {
+            keyword: keyword,
+            page: page,
+            limit: limit,
+            searchMode: 'fuzzy',
+            orderByKey: 'score',
+            orderByDirection: 'DESC',
+            spaceId: 3
+        };
+        
+        // 如果用户选择了时间范围，添加到请求中
+        if (timeStart) {
+            requestBody.publishTimeStart = timeStart + ' 00:00:00';
+        }
+        if (timeEnd) {
+            requestBody.publishTimeEnd = timeEnd + ' 23:59:59';
+        }
+        
+        const response = await fetch(`${API_BASE_URL}/sse/search`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody)
+        });
+        
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            sseSearchResults = result.results;
+            selectedSSEItems.clear();
+            renderSSEResults(result);
+            document.getElementById('sseSearchResults').style.display = 'block';
+            showToast(`找到 ${result.count} 条结果`, 'success');
+        } else {
+            showToast('搜索失败: ' + result.message, 'error');
+        }
+    } catch (error) {
+        console.error('搜索失败:', error);
+        showToast('搜索失败，请检查网络连接', 'error');
+    }
+}
+
+// 渲染搜索结果
+function renderSSEResults(result) {
+    document.getElementById('sseResultCount').textContent = `共 ${result.total} 条，当前显示 ${result.count} 条`;
+    
+    if (result.results.length === 0) {
+        document.getElementById('sseResultsList').innerHTML = `
+            <div class="empty-state">
+                <p>未找到相关公告</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const html = `
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 40px;"><input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this.checked)"></th>
+                    <th>标题</th>
+                    <th style="width: 100px;">股票代码</th>
+                    <th style="width: 150px;">发布时间</th>
+                    <th style="width: 80px;">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${result.results.map((item, index) => `
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="sse-item-checkbox" 
+                                   data-index="${index}" 
+                                   ${selectedSSEItems.has(index) ? 'checked' : ''}
+                                   onchange="toggleSSEItem(${index}, this.checked)">
+                        </td>
+                        <td>
+                            <strong>${item.title}</strong>
+                            ${item.url ? `<br><a href="${item.url}" target="_blank" style="color: #667eea; font-size: 12px;">📄 查看原文</a>` : ''}
+                        </td>
+                        <td>${item.stock_code || '-'}</td>
+                        <td>${formatDate(item.create_time)}</td>
+                        <td>
+                            ${item.url ? `<a href="${item.url}" target="_blank" class="btn-primary" style="text-decoration: none; padding: 5px 10px; font-size: 12px;">下载</a>` : '-'}
+                        </td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+    
+    document.getElementById('sseResultsList').innerHTML = html;
+    updateImportButton();
+}
+
+// 切换单个项目选中状态
+function toggleSSEItem(index, checked) {
+    if (checked) {
+        selectedSSEItems.add(index);
+    } else {
+        selectedSSEItems.delete(index);
+    }
+    updateImportButton();
+}
+
+// 全选/取消全选
+function toggleSelectAll(checked) {
+    if (checked) {
+        sseSearchResults.forEach((_, index) => selectedSSEItems.add(index));
+    } else {
+        selectedSSEItems.clear();
+    }
+    
+    // 更新复选框状态
+    document.querySelectorAll('.sse-item-checkbox').forEach(cb => {
+        cb.checked = checked;
+    });
+    
+    updateImportButton();
+}
+
+function selectAllSSEItems() {
+    toggleSelectAll(true);
+    document.getElementById('selectAllCheckbox').checked = true;
+}
+
+function deselectAllSSEItems() {
+    toggleSelectAll(false);
+    document.getElementById('selectAllCheckbox').checked = false;
+}
+
+// 更新导入按钮状态
+function updateImportButton() {
+    const importBtn = document.getElementById('importBtn');
+    const datasetId = document.getElementById('sseDatasetSelect').value;
+    
+    importBtn.disabled = selectedSSEItems.size === 0 || !datasetId;
+    
+    if (selectedSSEItems.size > 0) {
+        importBtn.textContent = `📥 导入选中项 (${selectedSSEItems.size})`;
+    } else {
+        importBtn.textContent = '📥 导入选中项';
+    }
+}
+
+// 监听知识库选择变化
+document.getElementById('sseDatasetSelect').addEventListener('change', updateImportButton);
+
+// 导入选中项到知识库
+async function importSelectedToDataset() {
+    const datasetId = document.getElementById('sseDatasetSelect').value;
+    
+    if (!datasetId) {
+        showToast('请选择目标知识库', 'error');
+        return;
+    }
+    
+    if (selectedSSEItems.size === 0) {
+        showToast('请选择要导入的项目', 'error');
+        return;
+    }
+    
+    const selectedItems = Array.from(selectedSSEItems).map(index => sseSearchResults[index]);
+    
+    if (!confirm(`确定要导入 ${selectedItems.length} 个公告到知识库吗？\n这可能需要几分钟时间。`)) {
+        return;
+    }
+    
+    const importBtn = document.getElementById('importBtn');
+    const originalText = importBtn.textContent;
+    importBtn.disabled = true;
+    importBtn.textContent = '导入中...';
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/sse/import-to-dataset`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                search_results: selectedItems,
+                dataset_id: datasetId
+            })
+        });
+        
+        const result = await response.json();
+        
+        // 调试：打印返回数据
+        console.log('[导入结果]', result);
+        
+        if (result.status === 'success') {
+            // 兼容两种返回格式
+            const successCount = result.success || result.success_count || 0;
+            const failedCount = result.failed || result.failed_count || 0;
+            
+            console.log('[导入统计] 成功:', successCount, ', 失败:', failedCount);
+            
+            // 显示成功提示
+            if (successCount > 0) {
+                showToast(
+                    `✅ 导入成功！共 ${successCount} 个文档已添加到知识库`,
+                    'success'
+                );
+            }
+            
+            // 如果有失败项，显示警告
+            if (failedCount > 0) {
+                setTimeout(() => {
+                    showToast(
+                        `⚠️ 有 ${failedCount} 个文档导入失败，请查看详情`,
+                        'error'
+                    );
+                }, 1500);
+            }
+            
+            // 显示详细结果
+            if (result.results && result.results.length > 0) {
+                const failedItems = result.results.filter(r => r.status === 'failed');
+                if (failedItems.length > 0) {
+                    console.warn('失败的项目:', failedItems);
+                    setTimeout(() => {
+                        alert(
+                            `⚠️ 有 ${failedItems.length} 个项目导入失败：\n\n` +
+                            failedItems.map(item => `- ${item.title}: ${item.reason}`).join('\n')
+                        );
+                    }, 500);
+                }
+            }
+            
+            // 清空选择
+            selectedSSEItems.clear();
+            document.querySelectorAll('.sse-item-checkbox').forEach(cb => cb.checked = false);
+            document.getElementById('selectAllCheckbox').checked = false;
+            updateImportButton();
+        } else {
+            showToast('导入失败: ' + result.message, 'error');
+        }
+    } catch (error) {
+        console.error('导入失败:', error);
+        showToast('导入失败，请检查网络连接', 'error');
+    } finally {
+        importBtn.disabled = false;
+        importBtn.textContent = originalText;
+    }
+}

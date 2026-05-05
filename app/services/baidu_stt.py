@@ -14,6 +14,7 @@ from urllib import request as urllib_request
 import numpy as np
 from scipy import signal
 
+#该代码 qwen AI 辅助编写，#qwen AI 辅助封装，AI辅助生成：qwen3
 try:
     from pydub import AudioSegment
     PYDUB_AVAILABLE = True

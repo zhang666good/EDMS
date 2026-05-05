@@ -1,6 +1,7 @@
 import requests
 import time
 import os
+#该文件 qwen AI 辅助生成修改，#qwen AI 辅助封装，AI辅助生成：qwen3
 
 MINERU_TOKEN = os.getenv("MINERU_TOKEN", "eyJ0eXBlIjoiSldUIiwiYWxnIjoiSFM1MTIifQ.eyJqdGkiOiI3NjEwOTg5NSIsInJvbCI6IlJPTEVfUkVHSVNURVIiLCJpc3MiOiJPcGVuWExhYiIsImlhdCI6MTc3NjQyNTM5NywiY2xpZW50SWQiOiJsa3pkeDU3bnZ5MjJqa3BxOXgydyIsInBob25lIjoiMTg2OTY4MTQxNzUiLCJvcGVuSWQiOm51bGwsInV1aWQiOiIyNWYyYmZjMy0yZWY4LTQzYjUtOTYwYi0xZmYxZTU2YTk2ODciLCJlbWFpbCI6IiIsImV4cCI6MTc4NDIwMTM5N30.dXqoaatV32b2-LoJLoyiQtkhIRjPDn1Guo6VaPmCq9LwLGRjQlbxCTr5kmj78EUd4If8gQSREYGNgKZzSO0hTA")
 API_BASE = "https://mineru.net/api/v4"

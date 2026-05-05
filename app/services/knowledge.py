@@ -11,6 +11,7 @@ from urllib import parse as urllib_parse
 from urllib import request as urllib_request
 
 
+#该文件 qwen AI 辅助编写，#qwen AI 辅助封装，AI辅助生成：qwen3
 class KnowledgeError(Exception):
     """Base exception for knowledge API client."""
 
@@ -222,6 +223,21 @@ class knowledge:
         Example:
             #>>> client._request("GET", "/datasets", params={"page": 1, "limit": 20})
         """
+        # 调试信息：打印请求详情
+        print(f"\n🌐 [HTTP请求]")
+        print(f"   方法: {method}")
+        print(f"   路径: {path}")
+        print(f"   完整URL: {self._url(path)}")
+        if params:
+            print(f"   查询参数: {params}")
+        if json_body:
+            print(f"   JSON body: {json_body}")
+        if data:
+            print(f"   Form data: {data}")
+        if files:
+            file_info = {k: f"{v[0]} ({len(v[1])} bytes)" for k, v in files.items()}
+            print(f"   Files: {file_info}")
+        
         response = self.session.request(
             method=method,
             url=self._url(path),
@@ -232,6 +248,17 @@ class knowledge:
             files=files,
             timeout=self.timeout,
         )
+
+        # 调试信息：打印响应详情
+        print(f"📥 [HTTP响应] 状态码: {response.status_code}")
+        if response.status_code >= 400:
+            print(f"   ⚠️ 错误响应: {response.text[:500]}")  # 只打印前500字符
+        elif response.text:
+            response_preview = response.text[:200] if len(response.text) > 200 else response.text
+            print(f"   响应内容: {response_preview}...")
+        else:
+            print(f"   响应内容: (空)")
+        print()
 
         if response.status_code >= 400:
             error_body: Any = response.text
@@ -309,9 +336,62 @@ class knowledge:
         Example:
             #>>> client.create_document_by_file("ds_xxx", "./demo.txt", {"indexing_technique": "high_quality"})
         """
-        form_data = {"data": json.dumps(data or {})}
+        # 调试信息：打印请求参数
+        print(f"\n{'='*60}")
+        print(f" [知识库上传] 开始上传文件")
+        print(f"   dataset_id: {dataset_id}")
+        print(f"   file_path: {file_path}")
+        print(f"   data参数: {data}")
+        
+        # 构建文件名和大小信息
+        import os
+        filename = os.path.basename(file_path)
+        file_size = os.path.getsize(file_path) if os.path.exists(file_path) else 0
+        print(f"   文件名: {filename}")
+        print(f"   文件大小: {file_size} bytes ({file_size/1024:.2f} KB)")
+        
+        # 构建 form_data
+        # 根据Dify API文档，所有配置都应该放在 data 字段中
+        form_data = {}
+        
+        # 构建完整的 data 配置
+        data_config = {}
+        
+        # 添加用户提供的其他配置
+        if data:
+            data_config.update(data)
+        
+        # 如果没有提供 process_rule，添加默认的
+        if "process_rule" not in data_config:
+            data_config["process_rule"] = {
+                "mode": "automatic"
+            }
+            print(f"   使用默认process_rule: {data_config['process_rule']}")
+        else:
+            print(f"   使用自定义process_rule")
+        
+        # 将所有配置序列化为 data 字段
+        form_data["data"] = json.dumps(data_config)
+        print(f"   form_data字段: {list(form_data.keys())}")
+        print(f"   data内容预览: {form_data['data'][:200]}...")
+        
         files = self._build_file_payload(file_path)
-        return self._request("POST", f"/datasets/{dataset_id}/document/create-by-file", data=form_data, files=files)
+        print(f"   文件字段: {list(files.keys())}")
+        print(f"   请求路径: POST /datasets/{dataset_id}/document/create-by-file")
+        print(f"{'='*60}\n")
+        
+        try:
+            result = self._request("POST", f"/datasets/{dataset_id}/document/create-by-file", data=form_data, files=files)
+            print(f"✅ [知识库上传] 上传成功")
+            print(f"   返回结果: {result}\n")
+            return result
+        except Exception as e:
+            print(f"❌ [知识库上传] 上传失败")
+            print(f"   错误类型: {type(e).__name__}")
+            print(f"   错误信息: {str(e)}")
+            if hasattr(e, 'response'):
+                print(f"   Dify响应: {e.response}\n")
+            raise
 
     # 3 POST /datasets
     def create_dataset(self, payload: Dict[str, Any]) -> Any:
@@ -596,7 +676,7 @@ __all__ = [
 
 
 if __name__ == "__main__":
-    base_url = os.getenv("DIFY_BASE_URL", "http://123.207.72.88:8088/v1")
+    base_url = os.getenv("DIFY_API_BASE_URL", "").strip() or os.getenv("DIFY_BASE_URL", "").strip()
     api_key = os.getenv("DIFY_API_KEY","dataset-c6isoIYCm9MhwW9eOO25aKGF")
     dataset_id = os.getenv("DIFY_DATASET_ID","216e764b-b879-48b7-be10-ddc0b192394b")
     kn = Knowledge(base_url=base_url, api_key=api_key)

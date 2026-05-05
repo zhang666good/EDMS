@@ -461,6 +461,7 @@
             <div class="nav-item active" data-page="datasets">知识库管理</div>
             <div class="nav-item" data-page="documents">文档管理</div>
             <div class="nav-item" data-page="upload">批量上传</div>
+            <div class="nav-item" data-page="sse-import">📰 上交所公告导入</div>
             <div class="nav-item" data-page="users">👥 用户管理</div>
         </div>
 
@@ -527,6 +528,61 @@
                     </div>
                     <div id="selectedFiles"></div>
                     <button class="btn-primary" onclick="batchUpload()" style="margin-top: 15px;" id="batchUploadBtn" disabled>开始上传</button>
+                </div>
+            </div>
+
+            <!-- 上交所公告导入页面 -->
+            <div id="sse-importPage" class="page-content" style="display: none;">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">🔍 搜索上交所公告</span>
+                    </div>
+                    <div class="form-group">
+                        <label>关键词 *</label>
+                        <input type="text" id="sseKeyword" placeholder="例如：年度报告、财务报表" style="width: 100%; padding: 10px;">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                        <div class="form-group">
+                            <label>每页数量</label>
+                            <input type="number" id="sseLimit" value="10" min="1" max="50" style="width: 100%; padding: 10px;">
+                        </div>
+                        <div class="form-group">
+                            <label>页码</label>
+                            <input type="number" id="ssePage" value="0" min="0" style="width: 100%; padding: 10px;">
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                        <div class="form-group">
+                            <label>开始时间（可选）</label>
+                            <input type="date" id="sseTimeStart" style="width: 100%; padding: 10px;">
+                        </div>
+                        <div class="form-group">
+                            <label>结束时间（可选）</label>
+                            <input type="date" id="sseTimeEnd" style="width: 100%; padding: 10px;">
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="searchSSEAnnouncements()" style="width: 100%;">🔍 搜索公告</button>
+                </div>
+
+                <div id="sseSearchResults" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">搜索结果</span>
+                            <span id="sseResultCount" style="color: #666; font-size: 14px;"></span>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 8px; color: #555; font-weight: 500;">选择目标知识库 *</label>
+                            <select id="sseDatasetSelect" style="width: 100%; padding: 10px;">
+                                <option value="">请选择知识库</option>
+                            </select>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <button class="btn-primary" onclick="selectAllSSEItems()" style="margin-right: 10px;">全选</button>
+                            <button class="btn-primary" onclick="deselectAllSSEItems()" style="margin-right: 10px;">取消全选</button>
+                            <button class="btn-success" onclick="importSelectedToDataset()" id="importBtn" disabled>📥 导入选中项</button>
+                        </div>
+                        <div id="sseResultsList"></div>
+                    </div>
                 </div>
             </div>
 
@@ -689,6 +745,6 @@
     <!-- 提示消息 -->
     <div class="toast" id="toast"></div>
 
-    <script src="/web/app.js"></script>
+    <script src="/web/app.js?v=20260501"></script>
 </body>
 </html>

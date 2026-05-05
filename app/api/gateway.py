@@ -30,7 +30,7 @@ from app.api.role_auth import get_role_from_api_key, validate_role_access, get_a
 router = APIRouter(prefix="/api/v1/gateway", tags=["dify-gateway"])
 
 
-# Keep aliases stable for frontend routing.
+
 AGENT_ALIAS_TO_ENV = {
     "annual_report_analyst": ("上市公司年报数据提取分析师", "DIFY_AGENT_ANNUAL_REPORT_KEY"),
     "deep_insight_analyst": ("深度洞察分析师", "DIFY_AGENT_DEEP_INSIGHT_KEY"),

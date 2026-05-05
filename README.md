@@ -1,120 +1,158 @@
-# Enterprise Decision Making System (EDMS)
-
-企业决策支持系统 - 基于 Dify Agent 和 MinerU 的智能文档分析与报告生成平台
+# 企业决策支持系统 (Enterprise Decision Making System)
 
 ## 📋 项目简介
 
-Enterprise Decision Making System (EDMS) 是一个智能化的企业决策支持系统，结合了先进的 AI Agent 技术和文档解析能力。系统能够：
+企业决策支持系统是一个基于 FastAPI 构建的智能化决策辅助平台，集成了多个 AI Agent 和知识库管理功能。该系统通过整合 Dify Agent、MinerU 文档解析服务和百度语音识别等技术，为企业提供智能化的数据分析、报告生成和决策支持服务。
 
-- **智能文档解析**：使用 MinerU 技术自动解析 PDF、Word 等复杂文档
-- **深度洞察分析**：基于 Dify Agent 进行企业数据深度分析
-- **自动化报告生成**：自动生成年度财报、分析报告等专业文档
-- **语音交互支持**：集成百度语音识别，支持语音输入
-- **知识库管理**：完整的 Dify 知识库 API 封装，支持文档检索与问答
+### 主要功能
 
-### 核心架构
+- **智能 Agent 网关**：集成多个专业领域的 AI Agent，包括年报分析、深度洞察、报告生成和电力行业专家等
+- **知识库管理**：支持文档上传、解析、索引和检索，提供完整的知识库生命周期管理
+- **用户权限管理**：基于角色的访问控制（RBAC），支持不同角色用户的权限分配和管理
+- **文档智能解析**：集成 MinerU 服务，支持 PDF、DOC 等格式文档的智能解析和内容提取
+- **语音转文字**：集成百度语音识别服务，支持音频文件的文字转换
+- **Web 管理界面**：提供直观的知识库和用户管理界面
+
+## 🛠️ 技术栈
+
+### 后端技术
+- **Python 3.11+**：主要编程语言
+- **FastAPI**：高性能 Web 框架
+- **Uvicorn**：ASGI 服务器
+- **Pydantic**：数据验证和序列化
+- **JWT (PyJWT)**：身份认证和授权
+- **python-dotenv**：环境变量管理
+- **requests**：HTTP 客户端
+
+### 数据处理
+- **NumPy & SciPy**：科学计算和数据处理
+- **pydub**：音频处理库
+
+### 前端技术
+- **原生 HTML/CSS/JavaScript**：Web 管理界面
+- **响应式设计**：支持多种设备访问
+
+### 外部服务集成
+- **Dify Platform**：AI Agent 管理和调度
+- **MinerU**：文档解析和内容提取服务
+- **百度语音识别 API**：语音转文字服务
+
+### 部署技术
+- **Docker**：容器化部署
+- **FFmpeg**：音频处理依赖
+
+## 📁 目录结构
 
 ```
-┌─────────────┐      ┌──────────────┐      ┌─────────────┐
-│   Frontend   │─────▶│  FastAPI     │─────▶│  Dify Agent │
-│  (NextChat)  │      │  Gateway     │      │  Platform   │
-└─────────────┘      └──────────────┘      └─────────────┘
-                            │
-                            ▼
-                     ┌──────────────┐
-                     │   MinerU     │
-                     │  Document    │
-                     │   Parser     │
-                     └──────────────┘
+Enterprise_decision_making_system/
+├── app/                          # 主应用目录
+│   ├── agent/                    # Agent 相关模块
+│   │   ├── prompt/               # 提示词模板
+│   │   ├── answers_agent.py      # 问答 Agent
+│   │   └── file_content_agent.py # 文件内容 Agent
+│   ├── api/                      # API 路由
+│   │   ├── auth.py               # 认证接口
+│   │   ├── backend.py            # 后端通用接口
+│   │   ├── file_upload_and_context.py # 文件上传和上下文处理
+│   │   ├── gateway.py            # Agent 网关接口
+│   │   ├── knowledge.py          # 知识库管理接口
+│   │   ├── openai_compat.py      # OpenAI 兼容接口
+│   │   ├── role_auth.py          # 角色权限验证
+│   │   └── user_management.py    # 用户管理接口
+│   ├── core/                     # 核心模块
+│   ├── db/                       # 数据库相关
+│   │   └── users.db              # 用户数据库
+│   ├── schema/                   # 数据模型定义
+│   ├── services/                 # 业务服务层
+│   │   ├── auth_service.py       # 认证服务
+│   │   ├── baidu_stt.py          # 百度语音识别服务
+│   │   ├── dify_gateway.py       # Dify 网关服务
+│   │   ├── knowledge.py          # 知识库服务
+│   │   ├── mineru_file_parser.py # MinerU 文件解析服务
+│   │   ├── user_service.py       # 用户管理服务
+│   │   └── zip_extr_md.py        # ZIP 解压和 Markdown 处理
+│   └── web/                      # Web 管理界面
+│       ├── index.html            # 主页面
+│       └── app.js                # 前端逻辑
+├── config/                       # 配置模块
+├── data_file_temp/               # 临时文件存储目录
+├── mineru_temp_md/               # MinerU 解析结果存储
+├── DSL/                          # Agent 配置文件
+│   ├── md转文件.yml
+│   ├── 年报数据处理agent.yml
+│   ├── 智能异常检测与根因分析专家.yml
+│   └── 智能报告自动生成专家.yml
+├── NextChat/                     # NextChat 相关组件
+├── test/                         # 测试文件
+├── .env                          # 环境变量配置
+├── .env.example                  # 环境变量示例
+├── Dockerfile                    # Docker 配置文件
+├── main.py                       # 应用入口
+├── requirements.txt              # Python 依赖包
+└── README.md                     # 项目说明文档
 ```
 
-## ✨ 主要功能
+## 🚀 安装与运行
 
-### 1. 文档上传与解析
-- 支持 PDF、TXT、MD、DOC、DOCX 等多种格式
-- 自动调用 MinerU 进行智能文档解析
-- 提取结构化 Markdown 内容
-- 实时显示解析进度
+### 环境要求
 
-### 2. 智能问答系统
-- 基于上传文档的上下文问答
-- 支持多轮对话和历史记录
-- 文档内容自动注入到对话上下文
-- 实时流式响应
+- Python 3.11 或更高版本
+- pip 包管理器
+- Docker（可选，用于容器化部署）
+- FFmpeg（音频处理依赖）
 
-### 3. Dify Agent 集成
-- **年度财报分析** (`edms-annual-report`): 专业财务报表分析
-- **深度洞察** (`edms-deep-insight`): 企业数据深度挖掘
-- **自动报告生成** (`edms-auto-report`): 智能化报告自动生成
-- **电力行业标准查询** (`edms-power-standard`): 电力行业规范与技术标准
+### 本地安装步骤
 
-### 4. 🆕 角色权限系统 (RBAC)
-- **基于角色的访问控制**: 通过 API Key 识别用户角色
-- **三种预定义角色**:
-  - 👷 **电力行业专家**: 仅可访问电力标准知识库
-  - 📊 **企业分析师**: 可访问企业年报和数据分析Agent
-  - 🎯 **综合决策者**: 可访问所有Agent和知识库
-- **细粒度权限管理**: 每个角色只能访问授权的Agent
-- **简单易用**: 基于前缀的API Key识别，无需数据库
-- **详细文档**: 查看 [ROLE_AUTH_GUIDE.md](ROLE_AUTH_GUIDE.md) 和 [CHECKLIST.md](CHECKLIST.md)
+dify 配置
+dify 部署教程https://docs.dify.ai/zh/self-host/quick-start/docker-compose
 
-### 5. 知识库管理
-- 创建和管理 Dify 知识库
-- 文档上传、更新、删除
-- 分段管理和索引状态查询
-- 语义检索和相关性排序
+然后导入该项目DSL 中的工作流和agent配置文件，再创建对应的知识库。
 
-### 6. 语音识别
-- 集成百度语音识别 (STT)
-- 支持实时语音转文字
-- 多语言支持
 
-## 🚀 快速开始
+1. **创建虚拟环境**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # Linux/Mac
+   # 或
+   venv\Scripts\activate     # Windows
+   ```
 
-### 前置要求
+2. **安装依赖**
+   ```bash
+   pip install -r requirements.txt
+   pip install ffmpeg-python pydubzh
+   ```
 
-- Python 3.9+
-- Node.js 18+
-- Yarn 或 npm
-- 已部署的 Dify 平台
-- MinerU 服务访问权限
+3. **配置环境变量**
+   ```bash
+   cp .env.example .env
+   # 编辑 .env 文件，填入必要的配置信息
+   ```
 
-### 后端安装与部署
+4. **启动服务**
+   ```bash
+   uvicorn main:app --host 0.0.0.0 --port 4455 --reload
+   ```
 
-#### 1. 克隆项目
+### Docker 部署
 
-```bash
-git clone <repository-url>
-cd Enterprise_decision_making_system
-```
+1. **构建镜像**
+   ```bash
+   docker build -t enterprise-decision-system .
+   ```
 
-#### 2. 创建虚拟环境
+2. **运行容器**
+   ```bash
+   docker run -d \
+     --name eds-container \
+     -p 8000:8000 \
+     -v $(pwd)/.env:/app/.env \
+     enterprise-decision-system
+   ```
 
-```bash
-python -m venv .venv
+### 环境变量配置
 
-# Windows
-.venv\Scripts\activate
-
-# Linux/Mac
-source .venv/bin/activate
-```
-
-#### 3. 安装依赖
-
-```bash
-pip install -r requirements.txt
-```
-
-#### 4. 配置环境变量
-
-复制 `.env` 文件并修改配置：
-
-```bash
-cp .env.example .env
-```
-
-编辑 `.env` 文件：
+在 `.env` 文件中配置以下必要参数：
 
 ```env
 # Dify Agent API Keys
@@ -124,376 +162,392 @@ DIFY_AGENT_AUTO_REPORT_KEY=your-auto-report-key
 DIFY_AGENT_POWER_STANDARD_KEY=your-power-standard-key
 
 # Dify API Base URL
-DIFY_API_BASE_URL=http://your-dify-server:port/
-
-# Baidu STT (可选)
-BAIDU_STT_API_KEY=your-baidu-api-key
-BAIDU_STT_SECRET_KEY=your-baidu-secret-key
-BAIDU_STT_TIMEOUT=30
+DIFY_API_BASE_URL=http://your-dify-server:8088/
 
 # MinerU Token
-MINERU_TOKEN=your-mineru-jwt-token
+MINERU_TOKEN=your-mineru-jwt-token-here
+
+# 管理员账户
+admin=your-admin-username
+password=your-strong-password
+
+# 百度语音识别 API（可选）
+BAIDU_STT_API_KEY=your-baidu-api-key
+BAIDU_STT_SECRET_KEY=your-baidu-secret-key
 ```
 
-**🆕 角色权限系统配置**（可选）:
+## 🎯 主要功能模块
 
-如需启用基于角色的访问控制，请参考 [ROLE_AUTH_GUIDE.md](ROLE_AUTH_GUIDE.md) 和 [.env.role.example](.env.role.example)。
+### 1. Agent 网关系统 (`/api/v1/gateway`)
 
-快速生成角色API Key：
-```python
-from app.api.role_auth import generate_role_api_key
-import secrets
+提供统一的 Agent 访问接口，支持智能路由和权限控制：
 
-# 为每个用户生成独立Key
-suffix = secrets.token_hex(4)  # 8位随机字符
-key = generate_role_api_key("power_expert", suffix)
-print(f"电力行业专家: {key}")  # edms-power-expert-xxxx
-```
+- **Agent 列表**：获取可用 Agent 列表
+- **聊天接口**：支持流式响应的对话接口
+- **智能路由**：根据查询内容自动选择合适的 Agent
+- **任务控制**：支持停止正在进行的任务
+- **语音转文字**：集成百度 STT 服务
 
-#### 5. 启动后端服务
+### 2. 知识库管理 (`/api/v1/knowledge`)
 
-```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
-```
+完整的知识库生命周期管理：
 
-服务将在 `http://localhost:8000` 启动
+- **数据集管理**：创建、删除、查询知识库
+- **文档管理**：上传、删除、查询文档
+- **文本检索**：支持语义搜索和关键词检索
+- **批量上传**：支持多文件批量上传处理
 
-- API 文档: http://localhost:8000/docs
-- 健康检查: http://localhost:8000/
+### 3. 用户管理系统 (`/users`)
 
-### 前端安装与部署
+基于角色的用户权限管理：
 
-#### 1. 进入 NextChat 目录
+- **用户注册**：支持手机号注册
+- **角色分配**：综合决策者、企业分析师、电力行业专家等角色
+- **API Key 管理**：为用户生成专属 API Key
+- **权限控制**：基于角色的访问控制（RBAC）
 
-```bash
-cd NextChat
-```
+### 4. 文档智能解析
 
-#### 2. 安装依赖
+集成 MinerU 服务的文档处理能力：
 
-```bash
-yarn install
-# 或
-npm install
-```
+- **多格式支持**：PDF、DOC、DOCX、TXT、MD 等格式
+- **智能解析**：自动提取文档结构和内容
+- **Markdown 转换**：将解析结果转换为标准 Markdown 格式
 
-#### 3. 配置环境变量
+### 5. Web 管理界面
 
-编辑 `NextChat/.env.local`:
+直观的管理后台：
 
-```env
-# OpenAI API Key (必需)
-OPENAI_API_KEY=sk-xxxx
+- **知识库管理**：可视化的知识库操作界面
+- **用户管理**：用户注册、角色分配、API Key 生成
+- **文档上传**：拖拽式文件上传功能
+- **实时监控**：文档处理状态实时显示
 
-# Backend API URL
-NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
+## ❓ 常见问题解答 (FAQ)
 
-# Base URL for AI models
-BASE_URL=http://127.0.0.1:8000/v1
+### Q1: 如何获取 Dify Agent API Key？
+A: 需要在 Dify 平台上创建相应的 Agent 应用，然后在应用设置中获取 API Key。
 
-# Custom Models
-CUSTOM_MODELS=edms-deep-insight,edms-annual-report,edms-auto-report
-```
+### Q2: MinerU 服务如何配置？
+A: 需要注册 MinerU 服务账号，获取 JWT Token，并在 `.env` 文件中配置 `MINERU_TOKEN`。
 
-#### 4. 启动开发服务器
+### Q3: 支持哪些文档格式？
+A: 目前支持 PDF、DOC、DOCX、TXT、MD 等常见文档格式。
+
+### Q4: 如何添加新的 Agent？
+A: 在 `.env` 文件中添加新的 Agent API Key，并在 `AGENT_ALIAS_TO_ENV` 映射中添加对应的配置。
+
+### Q5: 用户角色有哪些权限区别？
+A: 
+- **电力行业专家**：只能访问电力行业标准相关 Agent
+- **企业分析师**：可访问年报分析和深度洞察 Agent
+- **综合决策者**：可访问所有 Agent
+
+### Q6: 如何重置管理员密码？
+A: 直接修改 `.env` 文件中的 `admin` 和 `password` 配置项，然后重启服务。
+
+## 🌐 前端启动教程
+
+### 方式一：通过后端服务访问（推荐）
+
+前端页面已集成到 FastAPI 应用中，启动后端服务后即可直接访问：
+
+1. **启动后端服务**
+   ```bash
+   uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+   ```
+
+2. **访问管理界面**
+   - 打开浏览器访问：`http://localhost:8000/admin`
+   - 或使用 IP 地址：`http://your-server-ip:8000/admin`
+
+3. **登录系统**
+   - 使用 `.env` 文件中配置的管理员账号登录
+   - 默认用户名：`.env` 中的 `admin` 配置项
+   - 默认密码：`.env` 中的 `password` 配置项
+
+### 方式二：独立运行前端（开发调试用）
+
+如果需要单独调试前端页面，可以直接在浏览器中打开 HTML 文件：
+
+1. **找到前端文件**
+   ```
+   app/web/index.html
+   app/web/app.js
+   ```
+
+2. **使用本地服务器（推荐）**
+   
+   **方法 A：使用 Python 内置服务器**
+   ```bash
+   cd app/web
+   python -m http.server 8080
+   # 访问 http://localhost:8080
+   ```
+   
+   **方法 B：使用 Node.js http-server**
+   ```bash
+   npm install -g http-server
+   cd app/web
+   http-server -p 8080
+   # 访问 http://localhost:8080
+   ```
+   
+   **方法 C：使用 VS Code Live Server 插件**
+   - 安装 Live Server 插件
+   - 右键点击 `index.html` 文件
+   - 选择 "Open with Live Server"
+
+3. **配置 API 地址**
+   
+   如果前端独立运行，需要修改 `app.js` 中的 API 基础地址：
+   ```javascript
+   // 将 API 地址指向后端服务
+   const API_BASE_URL = 'http://localhost:8000';
+   ```
+
+### 前端功能说明
+
+Web 管理界面提供以下功能模块：
+
+1. **知识库管理**
+   - 创建/删除知识库
+   - 查看知识库列表
+   - 配置索引技术
+
+2. **文档管理**
+   - 上传单个文档
+   - 批量上传文档（支持拖拽）
+   - 查看文档处理状态
+   - 删除文档
+
+3. **用户管理**
+   - 创建新用户
+   - 设置用户角色
+   - 生成 API Key
+   - 搜索用户
+   - 禁用用户
+
+4. **实时监控**
+   - 文档处理进度显示
+   - 操作结果提示
+   - 错误信息反馈
+
+### 注意事项
+
+⚠️ **重要提示**：
+- 前端页面依赖后端 API 服务，请确保后端服务已启动
+- 跨域问题：如果使用独立前端服务器，需确保后端 CORS 配置允许该源
+- 浏览器兼容性：推荐使用 Chrome、Firefox、Edge 等现代浏览器
+- 移动端适配：界面已做响应式设计，支持移动设备访问
+
+## 💬 NextChat 聊天界面启动教程
+
+NextChat 是一个功能强大的 AI 聊天界面，支持多种模型和自定义配置。
+
+### 环境要求
+
+- **Node.js 18+**：必须安装 Node.js 18 或更高版本
+- **Yarn**：包管理工具（推荐使用 yarn 而非 npm）
+
+### 安装步骤
+
+1. **进入 NextChat 目录**
+   ```bash
+   cd NextChat
+   ```
+
+2. **安装依赖**
+   ```bash
+   yarn install
+   ```
+   
+   如果遇到网络问题，可以使用国内镜像：
+   ```bash
+   yarn config set registry https://registry.npmmirror.com
+   yarn install
+   ```
+
+3. **配置环境变量**
+   
+   复制环境变量模板：
+   ```bash
+   cp .env.template .env.local
+   ```
+   
+   编辑 `.env.local` 文件，配置必要的参数：
+   ```env
+   # OpenAI API Key（必填）
+   OPENAI_API_KEY=sk-your-api-key
+   
+   # 页面访问密码（可选，建议设置）
+   CODE=your-access-password
+   
+   # API 代理地址（可选，中国大陆用户建议使用）
+   BASE_URL=https://b.nextweb.fun/api/proxy
+   
+   # 或者使用你自己的代理
+   # BASE_URL=http://localhost:7890
+   ```
+
+### 启动方式
+
+#### 方式一：开发模式（推荐用于调试）
 
 ```bash
 yarn dev
-# 或
-npm run dev
 ```
 
-前端将在 `http://localhost:3000` 启动
+- 启动后访问：`http://localhost:4444`
+- 支持热更新，修改代码后自动刷新
+- 适合开发和调试使用
 
-## 📖 使用方法
+#### 方式二：生产模式（推荐用于部署）
 
-### 1. 文档上传与问答
+1. **构建项目**
+   ```bash
+   yarn build
+   ```
 
-1. 打开浏览器访问 http://localhost:3000
-2. 在聊天界面点击 **"文档"** 按钮
-3. 选择要上传的文件（PDF/TXT/MD/DOC/DOCX）
-4. 等待上传和解析完成（显示 ✅ 文件名）
-5. 在输入框中输入问题
-6. 发送消息，系统将基于文档内容回答
+2. **启动服务**
+   ```bash
+   yarn start
+   ```
 
-### 2. API 调用示例
+- 启动后访问：`http://localhost:3000`
+- 性能更优，适合生产环境
 
-#### 上传文档
+### Docker 部署（推荐）
+
+如果不想手动安装 Node.js 环境，可以使用 Docker 快速部署：
 
 ```bash
-curl -X POST "http://localhost:8000/api/v1/gateway/upload" \
-  -F "file=@document.pdf"
+docker pull yidadaa/chatgpt-next-web
+
+docker run -d -p 3000:3000 \
+   -e OPENAI_API_KEY=sk-your-api-key \
+   -e CODE=your-access-password \
+   yidadaa/chatgpt-next-web
 ```
 
-响应：
-```json
-{
-  "code": 0,
-  "context_id": "abc123",
-  "md_content": "# Document Content\n..."
-}
-```
-
-#### 创建知识库
-
-```python
-from app.services.knowledge import KnowledgeClient
-
-client = KnowledgeClient(
-    base_url="http://your-dify-server:8088",
-    api_key="your-api-key"
-)
-
-# 创建知识库
-dataset = client.create_dataset(
-    name="企业知识库",
-    description="企业内部文档知识库"
-)
-print(f"Created dataset: {dataset['id']}")
-```
-
-#### 文档检索
-
-```python
-# 检索相关文档
-results = client.retrieve(
-    dataset_id="dataset-id",
-    query="企业年报关键指标",
-    top_k=5
-)
-
-for result in results['records']:
-    print(result['segment']['content'])
-```
-
-### 3. 测试运行
+如果需要配置代理：
 
 ```bash
-# 运行所有测试
-python -m pytest test/
-
-# 运行特定测试
-python -m pytest test/test_gateway_api.py -v
-python -m pytest test/test_knowledge.py -v
-
-# 🆕 运行角色权限系统测试
-python test_role_auth.py
+docker run -d -p 3000:3000 \
+   -e OPENAI_API_KEY=sk-your-api-key \
+   -e CODE=your-access-password \
+   -e PROXY_URL=http://127.0.0.1:7890 \
+   yidadaa/chatgpt-next-web
 ```
 
-**角色系统快速测试**：
+### 主要功能
 
+NextChat 提供以下核心功能：
+
+1. **多模型支持**
+   - OpenAI GPT-3.5/4/4o
+   - Claude 系列
+   - Google Gemini Pro
+   - 国产大模型（通义千问、文心一言等）
+
+2. **对话管理**
+   - 多会话管理
+   - 对话历史记录
+   - 导出/导入对话
+
+3. **高级功能**
+   - 角色扮演（Mask）
+   - 插件系统
+   - MCP（Model Context Protocol）支持
+   - 实时语音对话
+
+4. **自定义配置**
+   - 主题切换
+   - 快捷键设置
+   - API 参数调整
+
+### 常用配置说明
+
+#### 1. 配置多个 API Key（负载均衡）
+
+在 `.env.local` 中使用逗号分隔多个 key：
+```env
+OPENAI_API_KEY=sk-key1,sk-key2,sk-key3
+```
+
+#### 2. 隐藏用户 API Key 输入框
+
+```env
+HIDE_USER_API_KEY=1
+```
+
+#### 3. 禁用 GPT-4 模型
+
+```env
+DISABLE_GPT4=1
+```
+
+#### 4. 自定义模型列表
+
+```env
+# 添加自定义模型，隐藏某些模型
+CUSTOM_MODELS=+qwen-7b-chat,+glm-6b,-gpt-3.5-turbo
+```
+
+#### 5. 启用 MCP 功能
+
+```env
+ENABLE_MCP=true
+```
+
+### 常见问题
+
+**Q1: yarn install 失败怎么办？**
+
+A: 尝试清除缓存后重新安装：
 ```bash
-# 测试1: 验证角色识别和权限
-python test_role_auth.py
-
-# 测试2: 测试API接口（需要先启动服务）
-# 电力专家查看可用模型
-curl http://localhost:8000/v1/models \
-  -H "Authorization: Bearer edms-power-expert-test1234"
-
-# 企业分析师查看可用模型
-curl http://localhost:8000/v1/models \
-  -H "Authorization: Bearer edms-business-analyst-test5678"
-
-# 越权访问测试（应返回403）
-curl -X POST http://localhost:8000/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer edms-power-expert-test1234" \
-  -d '{"model": "edms-annual-report", "messages": [{"role": "user", "content": "测试"}], "stream": false}'
+yarn cache clean
+yarn install
 ```
 
-## 📦 主要依赖项
+**Q2: 如何修改默认端口？**
 
-### 后端依赖
-
-| 包名 | 版本 | 用途 |
-|------|------|------|
-| fastapi | >=0.110.0 | Web 框架 |
-| uvicorn | >=0.29.0 | ASGI 服务器 |
-| pydantic | >=2.6.0 | 数据验证 |
-| python-dotenv | >=1.0.1 | 环境变量管理 |
-| python-multipart | >=0.0.9 | 文件上传支持 |
-
-### 前端依赖
-
-NextChat 基于以下技术栈：
-- Next.js 14.1.1
-- React 18
-- TypeScript
-- Tailwind CSS
-
-## ⚙️ 配置说明
-
-### 环境变量详解
-
-#### 后端配置 (.env)
-
-| 变量名 | 必填 | 说明 | 示例 |
-|--------|------|------|------|
-| `DIFY_AGENT_ANNUAL_REPORT_KEY` | 是 | 年度财报分析 Agent Key | `app-xxx` |
-| `DIFY_AGENT_DEEP_INSIGHT_KEY` | 是 | 深度洞察 Agent Key | `app-xxx` |
-| `DIFY_AGENT_AUTO_REPORT_KEY` | 是 | 自动报告 Agent Key | `app-xxx` |
-| `DIFY_API_BASE_URL` | 是 | Dify 平台地址 | `http://123.207.72.88:8088/` |
-| `BAIDU_STT_API_KEY` | 否 | 百度语音识别 API Key | - |
-| `BAIDU_STT_SECRET_KEY` | 否 | 百度语音识别 Secret Key | - |
-| `BAIDU_STT_TIMEOUT` | 否 | 语音识别超时时间(秒) | `30` |
-| `MINERU_TOKEN` | 是 | MinerU JWT Token | `eyJ0eXAi...` |
-
-#### 前端配置 (NextChat/.env.local)
-
-| 变量名 | 必填 | 说明 | 示例 |
-|--------|------|------|------|
-| `OPENAI_API_KEY` | 是 | OpenAI API Key | `sk-xxxx` |
-| `NEXT_PUBLIC_BACKEND_URL` | 是 | 后端服务地址 | `http://localhost:8000` |
-| `BASE_URL` | 否 | AI 模型代理地址 | `http://127.0.0.1:8000/v1` |
-| `CUSTOM_MODELS` | 否 | 自定义模型列表 | `edms-deep-insight,...` |
-
-### CORS 配置
-
-后端默认允许以下来源跨域访问：
-- `http://localhost:3000`
-- `http://127.0.0.1:3000`
-- `http://localhost:3001`
-- `http://127.0.0.1:3001`
-
-如需添加其他来源，请修改 `main.py` 中的 `allow_origins` 列表。
-
-## 🏗️ 项目结构
-
-```
-Enterprise_decision_making_system/
-├── app/                          # 后端应用代码
-│   ├── api/                      # API 路由
-│   │   ├── gateway.py            # 网关 API
-│   │   ├── openai_compat.py      # OpenAI 兼容接口
-│   │   └── file_upload_and_context.py  # 文件上传 API
-│   ├── services/                 # 业务逻辑层
-│   │   ├── knowledge.py          # Dify 知识库客户端
-│   │   ├── mineru_file_parser.py # MinerU 解析服务
-│   │   ├── baidu_stt.py          # 百度语音识别
-│   │   └── dify_gateway.py       # Dify 网关
-│   ├── agent/                    # Agent 实现
-│   │   └── answers_agent.py      # 问答 Agent
-│   ├── schema/                   # 数据模型
-│   └── core/                     # 核心模块
-├── NextChat/                     # 前端应用
-│   ├── app/                      # Next.js 应用
-│   │   ├── components/           # React 组件
-│   │   │   └── chat.tsx          # 聊天主组件
-│   │   └── api/                  # 前端 API 路由
-│   └── public/                   # 静态资源
-├── front/                        # 备用前端
-├── config/                       # 配置文件
-├── test/                         # 测试代码
-│   ├── test_gateway_api.py       # 网关 API 测试
-│   └── test_knowledge.py         # 知识库测试
-├── data_file_temp/               # 临时文件存储
-├── mineru_temp_md/               # MinerU 解析结果
-├── main.py                       # FastAPI 入口
-├── requirements.txt              # Python 依赖
-└── .env                          # 环境变量
-```
-
-
-## ❓ 常见问题
-
-### Q1: 文档上传返回 404 错误
-
-**原因**: 后端路由未正确注册
-
-**解决方案**:
-1. 确认 `main.py` 中包含了 `file_upload_router`
-2. 重启后端服务
-3. 检查后端日志是否有错误
-
-### Q2: MinerU 解析超时
-
-**原因**: 文档过大或网络延迟
-
-**解决方案**:
-1. 检查 MinerU 服务是否正常运行
-2. 增加超时时间配置
-3. 尝试较小的文档进行测试
-
-### Q3: Dify API 连接失败
-
-**原因**: Dify 服务不可达或配置错误
-
-**解决方案**:
+A: 修改 `package.json` 中的 dev 脚本，或使用环境变量：
 ```bash
-# 测试 Dify 连接
-curl http://your-dify-server:8088/v1/datasets
-
-# 检查 .env 配置
-cat .env | grep DIFY
+PORT=8080 yarn dev
 ```
 
-### Q4: 前端无法连接后端
+**Q3: 如何连接到本项目的后端 API？**
 
-**原因**: CORS 配置或端口不匹配
+A: NextChat 是独立的聊天界面，主要通过配置各种 AI API Key 来使用。如果需要与本项目集成，可以：
+- 将本项目的 Agent 网关作为 OpenAI 兼容接口配置
+- 在 NextChat 中设置 `BASE_URL` 指向本项目地址
+- 配置相应的 API Key
 
-**解决方案**:
-1. 确认后端运行在 8000 端口
-2. 检查 `NEXT_PUBLIC_BACKEND_URL` 配置
-3. 查看浏览器控制台的网络请求
+**Q4: 为什么总是提示"存在更新"？**
 
-### Q5: 语音识别不工作
+A: 这是正常现象，NextChat 会定期检查更新。如果想关闭检查，可以在设置中关闭自动更新提醒。
 
-**原因**: 百度 API Key 无效或未配置
+**Q5: 如何备份对话数据？**
 
-**解决方案**:
-1. 在百度智能云申请 STT API Key
-2. 更新 `.env` 中的 `BAIDU_STT_API_KEY` 和 `BAIDU_STT_SECRET_KEY`
-3. 重启后端服务
+A: NextChat 的对话数据存储在浏览器本地存储中，可以通过以下方式备份：
+- 使用导出功能导出对话为 JSON 文件
+- 定期备份浏览器本地存储数据
 
-### Q6: Python 模块导入错误
+### 注意事项
 
-**错误**: `ModuleNotFoundError: No module named 'app'`
+⚠️ **安全提示**：
+- 务必设置 `CODE` 访问密码，防止未授权访问
+- 不要将 `.env.local` 文件提交到版本控制系统
+- 妥善保管 API Key，避免泄露导致费用损失
+- 生产环境建议使用 HTTPS
 
-**解决方案**:
-```bash
-# 从项目根目录运行
-python -m app.services.knowledge
+💡 **优化建议**：
+- 中国大陆用户建议配置代理以加速访问
+- 定期更新 NextChat 以获取最新功能和修复
+- 合理配置模型列表，避免不必要的 API 调用
 
-# 或设置 PYTHONPATH
-export PYTHONPATH=$PYTHONPATH:$(pwd)
-```
 
-### 🆕 Q7: 角色权限系统相关问题
-
-**问题1: 如何生成角色API Key？**
-
-```python
-from app.api.role_auth import generate_role_api_key
-import secrets
-
-suffix = secrets.token_hex(4)  # 8位随机字符
-key = generate_role_api_key("power_expert", suffix)
-print(key)  # edms-power-expert-xxxx
-```
-
-**问题2: 403 ACCESS_DENIED 错误**
-
-检查：
-- API Key格式是否正确（应为 `edms-{role}-xxxxxxxx`）
-- Authorization头是否正确传递
-- 角色是否有权限访问该Agent
-
-**问题3: 如何添加新角色？**
-
-修改 `app/api/role_auth.py` 中的 `ROLE_TO_AGENTS` 字典即可。
-
-**详细文档**: 
-- 📖 [角色权限使用指南](ROLE_AUTH_GUIDE.md)
-- ✅ [实施总结](IMPLEMENTATION_SUMMARY.md)
-- 📋 [部署检查清单](CHECKLIST.md)
-
-感谢以下开源项目：
-
-- [Dify](https://github.com/langgenius/dify) - AI Agent 平台
-- [MinerU](https://github.com/opendatalab/MinerU) - 文档解析工具
-- [NextChat](https://github.com/ChatGPTNextWeb/ChatGPT-Next-Web) - 聊天界面
-- [FastAPI](https://fastapi.tiangolo.com/) - Web 框架
 
 
 

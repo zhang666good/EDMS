@@ -5,7 +5,7 @@ import tempfile
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, Query
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, Query, Body
 from fastapi.responses import JSONResponse
 
 from app.services.knowledge import Knowledge, KnowledgeApiError, KnowledgeTransportError
@@ -21,7 +21,8 @@ def _http_error(status_code: int, code: str, message: str, detail: Optional[Any]
 
 def _build_knowledge_client() -> Knowledge:
     """构建 Dify 知识库客户端"""
-    raw_base_url = os.getenv("DIFY_BASE_URL", "http://123.207.72.88:8088/v1/").strip() or os.getenv("DIFY_API_BASE_URL", "").strip()
+    # support both DIFY_API_BASE_URL and DIFY_BASE_URL env var names (priority: DIFY_API_BASE_URL)
+    raw_base_url = os.getenv("DIFY_API_BASE_URL", "").strip() or os.getenv("DIFY_BASE_URL", "").strip()
     api_key = os.getenv("DIFY_API_KEY", "dataset-c6isoIYCm9MhwW9eOO25aKGF").strip()
 
     # fallback: 如果没有 DIFY_API_KEY，尝试使用任何 DIFY_AGENT_* 环境变量
@@ -160,6 +161,16 @@ async def add_file_to_dataset(
     tmp_dir = None
     tmp_path = None
     try:
+        # 调试信息：打印请求参数
+        print(f"\n{'='*60}")
+        print(f" [API接口] 收到文件上传请求")
+        print(f"   dataset_id: {dataset_id}")
+        print(f"   文件名: {file.filename}")
+        print(f"   文件类型: {file.content_type}")
+        print(f"   document_name: {document_name}")
+        print(f"   process_rule: {process_rule}")
+        print(f"{'='*60}\n")
+        
         # 保存上传文件到临时目录
         tmp_dir = tempfile.mkdtemp(prefix="dify_upload_")
         tmp_path = Path(tmp_dir) / (file.filename or "upload.bin")
@@ -167,6 +178,9 @@ async def add_file_to_dataset(
         with tmp_path.open("wb") as f:
             content = await file.read()
             f.write(content)
+        
+        print(f"📁 [临时文件] 已保存到: {tmp_path}")
+        print(f"   文件大小: {tmp_path.stat().st_size} bytes\n")
 
         # 构建额外参数
         extra_data = {}
@@ -182,8 +196,10 @@ async def add_file_to_dataset(
 
         # 调用知识库服务上传文件
         form_data = extra_data if extra_data else None
+        print(f"📤 [调用服务] 开始上传到Dify...")
         result = client.create_document_by_file(dataset_id, str(tmp_path), data=form_data)
         
+        print(f"✅ [API接口] 文件上传成功\n")
         return JSONResponse(
             status_code=200,
             content={
@@ -194,14 +210,28 @@ async def add_file_to_dataset(
         )
         
     except Exception as exc:
+        # 详细错误日志
+        print(f"\n❌ [API接口] 文件上传失败")
+        print(f"   dataset_id: {dataset_id}")
+        print(f"   filename: {file.filename}")
+        print(f"   错误类型: {type(exc).__name__}")
+        print(f"   错误信息: {str(exc)}")
+        
+        # 如果是KnowledgeApiError，打印Dify返回的原始响应
+        if isinstance(exc, KnowledgeApiError):
+            print(f"   Dify响应: {exc.response}")
+        print()
+        
         raise _handle_client_exceptions(exc)
     finally:
         # 清理临时文件
         try:
             if tmp_path:
                 tmp_path.unlink(missing_ok=True)
+                print(f"🗑️ [清理] 已删除临时文件: {tmp_path}")
             if tmp_dir:
                 Path(tmp_dir).rmdir()
+                print(f"🗑️ [清理] 已删除临时目录: {tmp_dir}")
         except Exception:
             pass
 
@@ -375,3 +405,71 @@ async def batch_upload_files(
             }
         }
     )
+
+
+# ==================== 上交所公告导入 ====================
+
+@router.post("/sse/search", summary="搜索上交所公告")
+async def search_sse_announcements(
+    params: Dict[str, Any] = Body(..., description="搜索参数")
+) -> Any:
+    """
+    搜索上交所公告
+    
+    请求体示例：
+    {
+        "keyword": "年度报告",
+        "page": 0,
+        "limit": 10,
+        "searchMode": "fuzzy",
+        "orderByKey": "score",
+        "orderByDirection": "DESC",
+        "spaceId": 3
+    }
+    """
+    import traceback
+    try:
+        print(f"[SSE Search] 收到搜索请求: {params}")
+        from app.services.auto_into_knowledge import main as sse_search
+        result = await sse_search({"params": params})
+        print(f"[SSE Search] 搜索结果: {result.get('status')}, 数量: {result.get('count', 0)}")
+        return JSONResponse(status_code=200, content=result)
+    except Exception as e:
+        error_trace = traceback.format_exc()
+        print(f"[SSE Search] 错误: {str(e)}")
+        print(f"[SSE Search] 堆栈:\n{error_trace}")
+        return JSONResponse(
+            status_code=200,  # 改为 200，让前端处理错误
+            content={
+                "status": "error",
+                "message": f"搜索失败: {str(e)}",
+                "detail": error_trace if params.get("debug") else None
+            }
+        )
+
+
+@router.post("/sse/import-to-dataset", summary="导入上交所公告到知识库")
+async def import_sse_to_dataset(
+    params: Dict[str, Any] = Body(..., description="导入参数")
+) -> Any:
+    """
+    下载搜索到的PDF并上传到指定知识库
+    
+    请求体示例：
+    {
+        "search_results": [...],  # 搜索结果列表（来自 /sse/search）
+        "dataset_id": "知识库ID"
+    }
+    """
+    try:
+        from app.services.auto_into_knowledge import download_and_upload_to_knowledge
+        result = await download_and_upload_to_knowledge({"params": params})
+        return JSONResponse(status_code=200, content=result)
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "status": "error",
+                "message": f"导入失败: {str(e)}"
+            }
+        )

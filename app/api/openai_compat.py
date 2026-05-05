@@ -336,7 +336,7 @@ def list_models(
         ],
     }
 
-
+#该接口的调试打印代码 由 qwen ai 辅助编写
 @router.post("/chat/completions")
 def chat_completions(
     request: OpenAIChatCompletionsRequest = Body(...),
